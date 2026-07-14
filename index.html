@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 奢華金屬橘圖卡生成器</title>
+  <title>AI 16:9 極簡圖卡生成器</title>
   
-  <!-- 導入高質感、具空氣感的繁體中文黑體 -->
+  <!-- 導入高質感、具呼吸感的字型 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   
   <style>
     /* ==========================================================================
-       🔴 奢華愛馬仕橘金屬配色與核心變數
+       🔴 頂流極簡美學 - 基礎設定與變數 (捨棄奢華金屬，回歸高質感極簡)
        ========================================================================== */
     :root {
-      --font-primary: 'Noto Sans TC', sans-serif;
-      --orange-primary: #ff5e00; /* 愛馬仕橘 */
-      --orange-glow: linear-gradient(135deg, #ff9f43 0%, #ff5e00 100%);
-      --metal-border: rgba(255, 94, 0, 0.45); /* 金屬橘折射邊框 */
-      --glass-bg: rgba(20, 15, 12, 0.7); /* 暗金色調半透明玻璃 */
-      --text-main: #ffffff;
-      --text-sub: #ffbd9b;
+      --font-primary: 'Inter', 'Noto Sans TC', sans-serif;
+      --hermes-orange: #ff5e00; /* 愛馬仕橘，僅作為焦點與「必修」標籤使用 */
+      --glass-bg: rgba(255, 255, 255, 0.85); /* 高級乳白磨砂玻璃 */
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --text-main: #1d1d1f; /* Apple 經典深灰 */
+      --text-sub: #86868b;
+      --panel-bg: rgba(255, 255, 255, 0.75);
     }
 
     * {
@@ -38,37 +38,18 @@
       justify-content: center;
       align-items: center;
       overflow-x: hidden;
-      background: #0a0806; /* 曜石黑打底防止閃爍 */
+      background: #f5f5f7; /* 蘋果官網極簡淡灰底 */
     }
 
     /* ==========================================================================
-       🔴 Pexels 智慧鮮豔背景 (高飽和度磨砂景深濾鏡)
-       ========================================================================== */
-    .ai-dynamic-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      /* 預設鮮豔橘色宇宙流光背景 */
-      background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
-      background-size: cover;
-      background-position: center;
-      filter: blur(60px) brightness(0.85) saturate(2); /* 超高飽和度、極度鮮豔 */
-      transform: scale(1.15); /* 消除邊緣模糊露白 */
-      transition: background-image 2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease;
-    }
-
-    /* ==========================================================================
-       🔴 佈局：雙欄 Bento Grid (便當盒排版)
+       🔴 佈局系統：雙欄 Bento Grid (極致平衡感)
        ========================================================================== */
     .bento-container {
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 380px 1fr;
       gap: 32px;
-      width: 90%;
-      max-width: 1200px;
+      width: 95%;
+      max-width: 1280px;
       margin: 40px auto;
       z-index: 1;
     }
@@ -80,104 +61,29 @@
       }
     }
 
-    /* ==========================================================================
-       🔴 奢華暗金玻璃擬態面板 (Glassmorphism)
-       ========================================================================== */
+    /* 邊欄控制面板 */
     .glass-panel {
-      background: var(--glass-bg);
-      backdrop-filter: blur(40px) saturate(140%);
-      -webkit-backdrop-filter: blur(40px) saturate(140%);
-      border: 1.5px solid var(--metal-border);
-      border-radius: 28px;
-      padding: 36px;
-      box-shadow: 
-        0 4px 30px rgba(255, 94, 0, 0.05), 
-        0 30px 60px rgba(0, 0, 0, 0.4);
-    }
-
-    .control-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
       gap: 24px;
     }
 
     .panel-title {
-      font-size: 26px;
-      font-weight: 900;
-      color: #ffffff;
+      font-size: 22px;
+      font-weight: 800;
       letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .panel-title span {
-      background: var(--orange-glow);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     /* ==========================================================================
-       🎨 5 種鮮豔背景風格控制區 (UI 排版)
+       🎨 工業風 UI 表單與「必修」選取器
        ========================================================================== */
-    .style-controller-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-sub);
-      margin-bottom: 12px;
-      letter-spacing: 1.5px;
-    }
-
-    .style-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .style-btn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 94, 0, 0.20);
-      padding: 12px 18px;
-      border-radius: 14px;
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .style-btn:hover, .style-btn.active {
-      background: rgba(255, 94, 0, 0.15);
-      border-color: var(--orange-primary);
-      box-shadow: 0 0 15px rgba(255, 94, 0, 0.1);
-    }
-
-    /* 隨機再生成 🔄 按鈕 (橘色微光邊框與金屬觸感) */
-    .regen-icon {
-      background: rgba(255, 94, 0, 0.25);
-      border: 1px solid var(--orange-primary);
-      color: #ffffff;
-      border-radius: 8px;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .regen-icon:hover {
-      background: var(--orange-primary);
-      transform: rotate(180deg);
-      box-shadow: 0 0 10px var(--orange-primary);
-    }
-
-    /* 工業風輸入欄 */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -192,203 +98,320 @@
 
     input[type="text"] {
       width: 100%;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 94, 0, 0.3);
-      background: rgba(0, 0, 0, 0.3);
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.5);
       font-size: 15px;
-      color: #ffffff;
+      color: var(--text-main);
       outline: none;
       transition: all 0.3s ease;
     }
 
     input[type="text"]:focus {
-      border-color: var(--orange-primary);
-      box-shadow: 0 0 0 4px rgba(255, 94, 0, 0.25);
+      border-color: var(--hermes-orange);
+      box-shadow: 0 0 0 4px rgba(255, 94, 0, 0.15);
     }
 
-    /* 金屬橘主生成按鈕 */
+    /* 必修勾選框 (極簡精緻) */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px 0;
+    }
+
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      display: inline-block;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    input[type="checkbox"]:checked + .custom-checkbox {
+      background: var(--hermes-orange);
+      border-color: var(--hermes-orange);
+    }
+
+    input[type="checkbox"]:checked + .custom-checkbox::after {
+      content: "✓";
+      position: absolute;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /*風格選擇器*/
+    .style-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* 生成按鈕 */
     .btn-generate {
       width: 100%;
       padding: 16px;
       border: none;
-      border-radius: 16px;
-      background: var(--orange-glow);
+      border-radius: 14px;
+      background: #1d1d1f;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(255, 94, 0, 0.3);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.3s ease;
     }
 
     .btn-generate:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 94, 0, 0.5);
-      filter: brightness(1.1);
+      background: #000000;
+      transform: translateY(-1px);
     }
 
     /* ==========================================================================
-       🔴 卡片預覽區：3D 物理懸浮、折射與翻轉
+       🔴 16:9 背景美術預覽舞台 (核心美學區)
        ========================================================================== */
-    .preview-stage {
+    .stage-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* 嚴格黃金比例 16:9 的卡片預覽區 */
+    .preview-stage-16-9 {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      perspective: 1200px;
-      min-height: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      background-size: cover;
+      background-position: center;
+      /* 預設極簡莫蘭迪風格背景 */
+      background-image: url('https://images.pexels.com/photos/7130560/pexels-photo-7130560.jpeg?auto=compress&cs=tinysrgb&w=1280');
+      transition: background-image 1.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* 懸浮在 16:9 畫面正中央的極簡知識卡片 */
     .interactive-card {
-      width: 100%;
-      max-width: 500px;
-      height: 300px;
-      border-radius: 28px;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      width: 75%;
+      height: 60%;
+      perspective: 1000px;
       cursor: pointer;
     }
 
-    .preview-stage:hover .interactive-card {
-      box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.5),
-        0 0 50px rgba(255, 94, 0, 0.3);
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* 玻璃卡片正面與背面 (純化：拿掉所有英文副標飾字，只留核心內容) */
+    .interactive-card.is-flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* 卡片正反面 (高級溫潤白與磨砂感) */
     .card-face {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border-radius: 28px;
-      padding: 44px;
+      border-radius: 20px;
+      padding: 36px;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* 內容居中，避免雜亂 */
+      justify-content: center;
       align-items: center;
-      border: 1.5px solid var(--metal-border);
       background: var(--glass-bg);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
       text-align: center;
     }
 
     .card-back {
       transform: rotateY(180deg);
-      background: rgba(15, 10, 8, 0.85); /* 稍微加深便於文字辨識 */
-      border-color: rgba(255, 94, 0, 0.6);
-    }
-
-    .interactive-card.is-flipped {
-      transform: rotateY(180deg);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     /* ==========================================================================
-       🔴 資訊層級（完全無英文裝飾，純粹大氣）
+       🍊 必修標籤 (愛馬仕橘視覺微動效)
+       ========================================================================== */
+    .badge-required {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--hermes-orange);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 30px;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(255, 94, 0, 0.3);
+      opacity: 0;
+      transform: scale(0.8) translateY(-5px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+
+    /* 必修勾選啟動時 */
+    .badge-required.is-visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* ==========================================================================
+       🔴 精緻控制按鈕：一鍵隨機生成該風格背景
+       ========================================================================== */
+    .btn-change-bg {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 30px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s ease;
+    }
+
+    .btn-change-bg:hover {
+      background: #f5f5f7;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-change-bg:active {
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       🔴 資訊字體 (大氣中文排版，完全無英文雜訊)
        ========================================================================== */
     .card-title {
-      font-size: 32px;
-      font-weight: 900;
+      font-size: 26px;
+      font-weight: 800;
       line-height: 1.4;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+      color: var(--text-main);
     }
 
     .card-description {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #ffd0b5;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #434346;
       font-weight: 500;
     }
   </style>
 </head>
 <body>
 
-  <!-- AI 動態鮮豔背景 -->
-  <div class="ai-dynamic-bg" id="dynamicBg"></div>
-
   <!-- Bento Grid 主容器 -->
   <div class="bento-container">
     
-    <!-- 左側：AI 控制面板 -->
-    <div class="glass-panel control-panel">
+    <!-- 左側：AI 操控面板 -->
+    <div class="glass-panel">
       <div>
-        <h1 class="panel-title"><span>AI</span> 圖卡生成器</h1>
-        <p style="font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-top: 6px;">
-          奢華橘金屬美學。無任何雜訊干擾的純粹知識體驗。
+        <h1 class="panel-title">AI 圖卡生成器</h1>
+        <p style="font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-top: 4px;">
+          16:9 極簡美學。精準呈現您的學科知識。
         </p>
       </div>
       
+      <!-- 主題輸入 -->
       <div class="input-group">
         <label class="input-label" for="cardTheme">卡片知識主題</label>
         <input type="text" id="cardTheme" placeholder="輸入主題..." value="量子糾纏">
       </div>
 
-      <!-- 5 種極致鮮豔風格控制器 -->
-      <div>
-        <h3 class="style-controller-title">背景氛圍風格</h3>
-        <div class="style-grid">
-          
-          <div class="style-btn active" id="btn-cyber" onclick="applyStyle('orange neon cyberpunk', 'btn-cyber')">
-            賽博奢華橘
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('orange neon cyberpunk')">🔄</button>
-          </div>
+      <!-- 必修勾選（關鍵優化①） -->
+      <label class="checkbox-group" for="requiredCheckbox">
+        <input type="checkbox" id="requiredCheckbox" onchange="toggleRequiredBadge()" checked>
+        <span class="custom-checkbox"></span>
+        <span style="font-size: 14px; font-weight: 700;">設定為「必修」單元</span>
+      </label>
 
-          <div class="style-btn" id="btn-liquid" onclick="applyStyle('vibrant holographic liquid', 'btn-liquid')">
-            迷幻液態流光
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant holographic liquid')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-abstract" onclick="applyStyle('bold colorful abstract art', 'btn-abstract')">
-            大膽極簡抽象
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('bold colorful abstract art')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-sunset" onclick="applyStyle('vibrant warm sunset', 'btn-sunset')">
-            黃金日落餘暉
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant warm sunset')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-light" onclick="applyStyle('vibrant light trails abstract', 'btn-light')">
-            迷離迷幻光影
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant light trails abstract')">🔄</button>
-          </div>
-
-        </div>
+      <!-- 5種背景風格選擇（關鍵優化②） -->
+      <div class="input-group">
+        <label class="input-label" for="bgStyle">背景美術風格</label>
+        <select id="bgStyle" class="style-select" onchange="changeStyle()">
+          <option value="minimalist pastel morandi">極簡莫蘭迪 (優雅舒適)</option>
+          <option value="futuristic tech cyber">未來科技 (高科技感)</option>
+          <option value="vibrant abstract gradient">抽象流光 (繽紛動感)</option>
+          <option value="warm sunrise forest">晨曦日光 (自然療癒)</option>
+          <option value="deep minimalist dark">深邃極客 (極致沉靜)</option>
+        </select>
       </div>
       
-      <button class="btn-generate" onclick="generatePremiumCard()">動態優化生成</button>
+      <button class="btn-generate" onclick="generatePremiumCard()">生成卡片內容</button>
     </div>
 
-    <!-- 右側：卡片 3D 預覽區 (無英文、完美置中) -->
-    <div class="preview-stage">
-      <div class="interactive-card" id="premiumCard" onclick="flipCard()">
+    <!-- 右側：16:9 背景美術預覽舞台 -->
+    <div class="stage-wrapper">
+      
+      <div class="preview-stage-16-9" id="previewStage">
         
-        <!-- 卡片正面 -->
-        <div class="card-face card-front">
-          <h2 class="card-title" id="frontTitle">量子糾纏</h2>
-        </div>
+        <div class="interactive-card" id="premiumCard" onclick="flipCard()">
+          <div class="card-inner">
+            
+            <!-- 卡片正面 (含有「必修」愛馬仕橘標籤) -->
+            <div class="card-face card-front">
+              <span class="badge-required is-visible" id="requiredBadge">必修</span>
+              <h2 class="card-title" id="frontTitle">量子糾纏</h2>
+            </div>
 
-        <!-- 卡片背面 -->
-        <div class="card-face card-back">
-          <p class="card-description" id="backDescription">兩個曾有關聯的微觀粒子，不論彼此相距多遠，當其中一個狀態改變時，另一個也會瞬間發生相應的改變，愛因斯坦曾稱其為「鬼魅般的超距作用」。</p>
+            <!-- 卡片背面 -->
+            <div class="card-face card-back">
+              <p class="card-description" id="backDescription">兩個曾有關聯的微觀粒子，不論彼此相距多遠，當其中一個狀態改變時，另一個也會瞬間發生相應的改變，愛因斯坦曾稱其為「鬼魅般的超距作用」。</p>
+            </div>
+
+          </div>
         </div>
 
       </div>
+
+      <!-- 下方的「更換背景」按鈕 -->
+      <button class="btn-change-bg" onclick="generateNewBackground()">
+        <span>🔄 更換背景</span>
+      </button>
+
     </div>
 
   </div>
 
   <!-- ==========================================================================
        🔴 Pexels API 與微互動控制邏輯 (JS)
-       ========================================================================== -->
+       ========================================================================== */
   <script>
-    // 開放免費 Pexels API 金鑰 (可自行替換)
+    // 免費 Pexels API 金鑰 (你可以替換為個人金鑰)
     const PEXELS_API_KEY = '533012a2e1d153e7a9571653e6692314'; 
-    let currentStyle = 'orange neon cyberpunk';
 
     // 1. 卡片 3D 翻轉邏輯
     function flipCard() {
@@ -396,42 +419,49 @@
       card.classList.toggle('is-flipped');
     }
 
-    // 2. 風格按鈕切換並獲取背景
-    async function applyStyle(styleKeywords, btnId) {
-      currentStyle = styleKeywords;
+    // 2. 勾選 "必修" 標籤時，自動顯示/隱藏愛馬仕橘「必修」徽章
+    function toggleRequiredBadge() {
+      const checkbox = document.getElementById('requiredCheckbox');
+      const badge = document.getElementById('requiredBadge');
+      if (checkbox.checked) {
+        badge.classList.add('is-visible');
+      } else {
+        badge.classList.remove('is-visible');
+      }
+    }
+
+    // 3. 切換風格下拉選單
+    async function changeStyle() {
+      await generateNewBackground();
+    }
+
+    // 4. 一鍵隨機更新背景：隨機挑選分頁以呈現不同畫面
+    async function generateNewBackground() {
+      const styleSelect = document.getElementById('bgStyle');
+      const selectedStyle = styleSelect.value;
       
-      // 切換按鈕的 Active 視覺狀態
-      document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(btnId).classList.add('active');
-
-      await fetchPexelsBackground(styleKeywords);
+      // 隨機獲取不同的頁數，達到「重新隨機生成該風格」的效果
+      const randomPage = Math.floor(Math.random() * 25) + 1;
+      await fetchPexelsBackground(selectedStyle, randomPage);
     }
 
-    // 3. 獨立 🔄 按鈕：獲取該風格下的隨機不同頁面（達到隨機再生成效果）
-    async function generateNewPhoto(styleKeywords) {
-      currentStyle = styleKeywords;
-      const randomPage = Math.floor(Math.random() * 20) + 1;
-      await fetchPexelsBackground(styleKeywords, randomPage);
-    }
-
-    // 4. 動態優化生成 (主按鈕)
+    // 5. 核心生成邏輯
     async function generatePremiumCard() {
       const theme = document.getElementById('cardTheme').value || '極緻知識';
-      
-      // 更新卡片正面文字
       document.getElementById('frontTitle').innerText = theme;
       
-      // 模擬 AI 動態生成答案的打字機效果
+      // 模擬 AI 動態寫入內容
       simulateAITyping("backDescription", `我們正在深入探索【${theme}】的核心脈絡。摒棄所有雜訊與無用英文裝飾，讓純粹的知識在最鮮豔、最奢華的金屬橘介面中，深深地烙印在大腦深處。`);
-
-      // 每次點擊生成，自動重新隨機替換一次背景圖
-      await generateNewPhoto(currentStyle);
+      
+      // 生成時同步刷新一次背景
+      await generateNewBackground();
     }
 
-    // 5. Pexels 動態圖像抓取與呼吸式漸變
+    // 6. 串接 Pexels 獲取 16:9 背景
     async function fetchPexelsBackground(keyword, page = 1) {
-      const bgContainer = document.getElementById('dynamicBg');
-      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=1&page=${page}`;
+      const stage = document.getElementById('previewStage');
+      // 將 Pexels 的圖片比例設為 16:9
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=1&page=${page}&orientation=landscape`;
 
       try {
         const response = await fetch(url, {
@@ -442,19 +472,19 @@
         if (data.photos && data.photos.length > 0) {
           const newImageUrl = data.photos[0].src.large2x;
           
-          // 精緻的 1.2 秒過渡：淡出 -> 更換 -> 淡入
-          bgContainer.style.opacity = '0.2';
+          // 呼吸漸變
+          stage.style.opacity = '0.5';
           setTimeout(() => {
-            bgContainer.style.backgroundImage = `url('${newImageUrl}')`;
-            bgContainer.style.opacity = '1';
-          }, 400); 
+            stage.style.backgroundImage = `url('${newImageUrl}')`;
+            stage.style.opacity = '1';
+          }, 300); 
         }
       } catch (error) {
-        console.warn("Pexels 載入失敗，採用預設背景：", error);
+        console.warn("Pexels 載入失敗，採用預設背景。");
       }
     }
 
-    // 6. 模擬 AI 精緻打字效果
+    // 7. 模擬 AI 打字效果
     function simulateAITyping(elementId, text) {
       const element = document.getElementById(elementId);
       element.innerHTML = '';

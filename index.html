@@ -3,454 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 奢華金屬橘圖卡生成器 - 專業修復版</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  
+  <title>AI 奢華圖卡生成器 | 頂流美學</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --font-primary: 'Noto Sans TC', sans-serif;
-      --orange-primary: #ff5e00; 
-      --orange-glow: linear-gradient(135deg, #ff9f43 0%, #ff5e00 100%);
-      --metal-border: rgba(255, 94, 0, 0.45); 
-      --glass-bg: rgba(20, 15, 12, 0.75); 
-      --text-main: #ffffff;
-      --text-sub: #ffbd9b;
+      --bg-dark: #0a0a0a;
+      --accent-orange: #ff5e00;
+      --glass: rgba(255, 255, 255, 0.05);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Noto Sans TC', sans-serif; 
+      background-color: var(--bg-dark); 
+      color: #fff;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; overflow: hidden;
     }
 
-    body {
-      font-family: var(--font-primary);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-      background: #0a0806; 
+    /* 動態背景層 */
+    #bg-layer {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      filter: blur(80px) brightness(0.6); z-index: -1;
+      transition: background 1s ease;
     }
 
-    /* 
-       優化：加入高性能 CSS 漸變作為預設底色。
-       即使 API 完全斷線，依然維持頂級的暗黑金屬橘氛圍。
-    */
-    .ai-dynamic-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      background: radial-gradient(circle at 50% 50%, #2a1205 0%, #0a0806 100%);
-      background-size: cover;
-      background-position: center;
-      filter: blur(40px) brightness(0.8) saturate(1.8);
-      transform: scale(1.1);
-      transition: background-image 1.2s ease-in-out, opacity 0.8s ease;
-    }
-
-    /* Bento Grid 佈局 */
-    .bento-container {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 32px;
-      width: 90%;
-      max-width: 1200px;
-      margin: 40px auto;
-      z-index: 1;
-    }
-
-    @media (max-width: 1024px) {
-      .bento-container {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
+    .container {
+      display: grid; grid-template-columns: 350px 500px;
+      gap: 40px; padding: 40px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
     }
 
     /* 控制面板 */
-    .glass-panel {
-      background: var(--glass-bg);
-      backdrop-filter: blur(40px) saturate(140%);
-      -webkit-backdrop-filter: blur(40px) saturate(140%);
-      border: 1.5px solid var(--metal-border);
-      border-radius: 28px;
-      padding: 36px;
-      box-shadow: 
-        0 4px 30px rgba(255, 94, 0, 0.05), 
-        0 30px 60px rgba(0, 0, 0, 0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+    .controls { display: flex; flex-direction: column; gap: 20px; }
+    input { 
+      padding: 15px; border-radius: 12px; border: none;
+      background: rgba(255,255,255,0.1); color: white;
     }
-
-    .panel-title {
-      font-size: 26px;
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: -0.5px;
+    button {
+      padding: 15px; border-radius: 12px; border: none;
+      background: var(--accent-orange); color: white;
+      font-weight: 900; cursor: pointer; transition: 0.3s;
     }
+    button:hover { transform: scale(1.02); filter: brightness(1.2); }
 
-    .panel-title span {
-      background: var(--orange-glow);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    /* 3D 卡片 */
+    .card-scene { perspective: 1000px; }
+    .card {
+      width: 500px; height: 300px;
+      position: relative; transition: transform 0.8s;
+      transform-style: preserve-3d; cursor: pointer;
     }
-
-    /* 風格控制區 */
-    .style-controller-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-sub);
-      margin-bottom: 12px;
-      letter-spacing: 1.5px;
-    }
-
-    .style-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .style-btn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 94, 0, 0.20);
-      padding: 12px 18px;
-      border-radius: 14px;
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .style-btn:hover, .style-btn.active {
-      background: rgba(255, 94, 0, 0.15);
-      border-color: var(--orange-primary);
-      box-shadow: 0 0 15px rgba(255, 94, 0, 0.1);
-    }
-
-    /* 隨機再生按鈕 */
-    .regen-icon {
-      background: rgba(255, 94, 0, 0.25);
-      border: 1px solid var(--orange-primary);
-      color: #ffffff;
-      border-radius: 8px;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .regen-icon:hover {
-      background: var(--orange-primary);
-      transform: rotate(180deg);
-      box-shadow: 0 0 10px var(--orange-primary);
-    }
-
-    /* 輸入框 */
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .input-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-sub);
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 94, 0, 0.3);
-      background: rgba(0, 0, 0, 0.3);
-      font-size: 15px;
-      color: #ffffff;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--orange-primary);
-      box-shadow: 0 0 0 4px rgba(255, 94, 0, 0.25);
-    }
-
-    /* 主生成按鈕 */
-    .btn-generate {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 16px;
-      background: var(--orange-glow);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(255, 94, 0, 0.3);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .btn-generate:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 94, 0, 0.5);
-      filter: brightness(1.1);
-    }
-
-    /* 3D 舞台與卡片 */
-    .preview-stage {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      perspective: 1200px;
-      min-height: 480px;
-    }
-
-    .interactive-card {
-      width: 100%;
-      max-width: 500px;
-      height: 300px;
-      border-radius: 28px;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      cursor: pointer;
-    }
-
-    .preview-stage:hover .interactive-card {
-      box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.5),
-        0 0 50px rgba(255, 94, 0, 0.3);
-    }
-
-    /* 卡片正反面 */
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
+    .card.is-flipped { transform: rotateY(180deg); }
+    .face {
+      position: absolute; width: 100%; height: 100%;
       backface-visibility: hidden;
-      border-radius: 28px;
-      padding: 44px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center; 
-      align-items: center;
-      border: 1.5px solid var(--metal-border);
-      background: var(--glass-bg);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
-      text-align: center;
+      display: flex; justify-content: center; align-items: center;
+      border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
+      padding: 40px; text-align: center; background: rgba(0,0,0,0.4);
     }
-
-    .card-back {
-      transform: rotateY(180deg);
-      background: rgba(15, 10, 8, 0.9); 
-      border-color: rgba(255, 94, 0, 0.6);
-    }
-
-    .interactive-card.is-flipped {
-      transform: rotateY(180deg);
-    }
-
-    .card-title {
-      font-size: 32px;
-      font-weight: 900;
-      line-height: 1.4;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-    }
-
-    .card-description {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #ffd0b5;
-      font-weight: 500;
-    }
+    .back { transform: rotateY(180deg); }
   </style>
 </head>
 <body>
 
-  <!-- AI 動態背景（優化：自帶優雅的備用漸變） -->
-  <div class="ai-dynamic-bg" id="dynamicBg"></div>
+  <div id="bg-layer"></div>
 
-  <div class="bento-container">
-    
-    <!-- 左欄：控制台 -->
-    <div class="glass-panel">
-      <div>
-        <h1 class="panel-title"><span>AI</span> 圖卡生成器</h1>
-        <p style="font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-top: 6px;">
-          奢華橘金屬美學。無任何雜訊干擾的純粹知識體驗。
-        </p>
-      </div>
-      
-      <div class="input-group">
-        <label class="input-label" for="cardTheme">卡片知識主題</label>
-        <input type="text" id="cardTheme" placeholder="輸入主題..." value="量子糾纏">
-      </div>
-
-      <div>
-        <h3 class="style-controller-title">背景氛圍風格</h3>
-        <div class="style-grid">
-          
-          <div class="style-btn active" id="btn-cyber" onclick="applyStyle('orange neon cyberpunk', 'btn-cyber')">
-            賽博奢華橘
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('orange neon cyberpunk')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-liquid" onclick="applyStyle('vibrant holographic liquid', 'btn-liquid')">
-            迷幻液態流光
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant holographic liquid')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-abstract" onclick="applyStyle('bold colorful abstract art', 'btn-abstract')">
-            大膽極簡抽象
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('bold colorful abstract art')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-sunset" onclick="applyStyle('vibrant warm sunset', 'btn-sunset')">
-            黃金日落餘暉
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant warm sunset')">🔄</button>
-          </div>
-
-          <div class="style-btn" id="btn-light" onclick="applyStyle('vibrant light trails abstract', 'btn-light')">
-            迷離迷幻光影
-            <button class="regen-icon" onclick="event.stopPropagation(); generateNewPhoto('vibrant light trails abstract')">🔄</button>
-          </div>
-
-        </div>
-      </div>
-      
-      <button class="btn-generate" onclick="generatePremiumCard()">動態優化生成</button>
+  <div class="container">
+    <div class="controls">
+      <h1>AI 內容生成</h1>
+      <input type="text" id="themeInput" placeholder="輸入知識主題...">
+      <button onclick="generateContent()">生成圖卡</button>
     </div>
 
-    <!-- 右欄：3D 預覽卡片 -->
-    <div class="preview-stage">
-      <div class="interactive-card" id="premiumCard" onclick="flipCard()">
-        
-        <div class="card-face card-front">
-          <h2 class="card-title" id="frontTitle">量子糾纏</h2>
-        </div>
-
-        <div class="card-face card-back">
-          <p class="card-description" id="backDescription">兩個曾有關聯的微觀粒子，不論彼此相距多遠，當其中一個狀態改變時，另一個也會瞬間發生相應的改變，愛因斯坦曾稱其為「鬼魅般的超距作用」。</p>
-        </div>
-
+    <div class="card-scene">
+      <div class="card" id="card" onclick="this.classList.toggle('is-flipped')">
+        <div class="face front"><h2 id="title">量子糾纏</h2></div>
+        <div class="face back"><p id="desc">點擊這裡查看 AI 生成的知識解讀...</p></div>
       </div>
     </div>
-
   </div>
 
   <script>
-    // 使用高流量 Pexels API Key
-    const PEXELS_API_KEY = '533012a2e1d153e7a9571653e6692314'; 
-    let currentStyle = 'orange neon cyberpunk';
+    const PEXELS_API_KEY = 'YOUR_API_KEY_HERE'; // 這裡填入你的 Key
 
-    // 1. 修正版翻轉邏輯（確保點擊正常運作）
-    function flipCard() {
-      const card = document.getElementById('premiumCard');
-      if (card) {
-        card.classList.toggle('is-flipped');
-      }
-    }
-
-    // 2. 風格按鈕切換
-    async function applyStyle(styleKeywords, btnId) {
-      currentStyle = styleKeywords;
+    async function generateContent() {
+      const theme = document.getElementById('themeInput').value;
+      document.getElementById('title').innerText = theme;
+      document.getElementById('desc').innerText = `正在為您探索關於「${theme}」的奧秘...`;
       
-      document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = document.getElementById(btnId);
-      if (activeBtn) activeBtn.classList.add('active');
-
-      await fetchPexelsBackground(styleKeywords);
-    }
-
-    // 3. 隨機再生成背景
-    async function generateNewPhoto(styleKeywords) {
-      currentStyle = styleKeywords;
-      const randomPage = Math.floor(Math.random() * 20) + 1;
-      await fetchPexelsBackground(styleKeywords, randomPage);
-    }
-
-    // 4. 動態優化生成
-    async function generatePremiumCard() {
-      const theme = document.getElementById('cardTheme').value || '極緻知識';
-      document.getElementById('frontTitle').innerText = theme;
-      
-      simulateAITyping("backDescription", `我們正在深入探索【${theme}】的核心脈絡。摒棄所有雜訊與無用英文裝飾，讓純粹的知識在最鮮豔、最奢華的金屬橘介面中，深深地烙印在大腦深處。`);
-
-      await generateNewPhoto(currentStyle);
-    }
-
-    // 5. 強化版圖片抓取（帶有安全過渡防禦）
-    async function fetchPexelsBackground(keyword, page = 1) {
-      const bgContainer = document.getElementById('dynamicBg');
-      if (!bgContainer) return;
-
-      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=1&page=${page}`;
-
-      try {
-        const response = await fetch(url, {
-          headers: { Authorization: PEXELS_API_KEY }
-        });
-        
-        if (!response.ok) throw new Error("API 請求失敗");
-        
-        const data = await response.json();
-        
-        if (data.photos && data.photos.length > 0) {
-          const newImageUrl = data.photos[0].src.large2x;
-          
-          // 雙重過渡：避免閃爍
-          bgContainer.style.opacity = '0.3';
-          setTimeout(() => {
-            bgContainer.style.backgroundImage = `url('${newImageUrl}')`;
-            bgContainer.style.opacity = '1';
-          }, 300); 
-        }
-      } catch (error) {
-        console.warn("Pexels 載入受限，已自動啟用頂級暗金漸變防禦底色。");
-        // 如果失敗，平滑地淡回漂亮的本地漸變
-        bgContainer.style.opacity = '1';
+      // 更新背景
+      const res = await fetch(`https://api.pexels.com/v1/search?query=${theme}&per_page=1`, {
+        headers: { Authorization: PEXELS_API_KEY }
+      });
+      const data = await res.json();
+      if(data.photos.length > 0) {
+        document.getElementById('bg-layer').style.backgroundImage = `url(${data.photos[0].src.original})`;
       }
     }
-
-    // 6. 模擬 AI 打字效果
-    function simulateAITyping(elementId, text) {
-      const element = document.getElementById(elementId);
-      if (!element) return;
-      element.innerHTML = '';
-      let i = 0;
-      function typing() {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-          setTimeout(typing, 20);
-        }
-      }
-      typing();
-    }
-
-    // 初始載入預設背景
-    window.onload = () => {
-      fetchPexelsBackground(currentStyle);
-    };
   </script>
 </body>
 </html>

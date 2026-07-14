@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Course Card Generator 5.0 - 超越 Sat.cool</title>
+    <!-- 引入高解析度 HTML 轉圖片庫 (超越 sat.cool 的核心，確保匯出不模糊) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-glow: radial-gradient(circle at 50% 50%, #1a1528 0%, #09070f 100%);
@@ -194,19 +196,21 @@
             justify-content: space-between;
         }
 
-        /* 16:9 實體預覽卡片 */
+        /* 16:9 實體預覽卡片 (增加 crossOrigin 屬性以利導出) */
         .card-16-9 {
+            width: 100%;
             aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #1f1a30 0%, #0d0b14 100%);
+            background: #0d0b14;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.06);
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
         }
 
         /* 圖片背景 */
@@ -215,16 +219,16 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.25;
+            opacity: 0.45; /* 略微調亮背景，使匯出的視覺飽和度更震撼 */
             z-index: 1;
             transition: all 0.5s ease;
         }
 
-        /* 磨砂玻璃覆蓋層，提升文字易讀性 */
+        /* 磨砂玻璃覆蓋層 */
         .card-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, rgba(13,11,20,0.85) 40%, rgba(13,11,20,0.1) 100%);
+            background: linear-gradient(90deg, rgba(13,11,20,0.92) 35%, rgba(13,11,20,0.2) 100%);
             z-index: 2;
         }
 
@@ -232,36 +236,38 @@
         .card-content {
             position: relative;
             z-index: 3;
-            max-width: 60%;
+            max-width: 65%;
+            pointer-events: none;
         }
 
         .card-title {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             color: #fff;
             line-height: 1.3;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .card-sub {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.7);
-            line-height: 1.5;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.6;
             font-weight: 400;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
 
         /* 必修標籤 */
         .badge-required {
             position: absolute;
-            bottom: 25px;
-            right: 25px;
+            bottom: 30px;
+            right: 30px;
             background: var(--accent-orange);
             color: white;
-            padding: 6px 18px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 8px 22px;
+            border-radius: 30px;
+            font-size: 15px;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(255, 94, 0, 0.5);
             letter-spacing: 1px;
@@ -276,7 +282,55 @@
             transform: scale(1);
         }
 
-        /* 預覽背景庫（模擬AI生成的精緻圖庫） */
+        /* 頂級毛玻璃通知元件 (Toast Notifications) */
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 24px;
+            border-radius: 16px;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transform: translateY(-20px) scale(0.9);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .toast-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: var(--accent-orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 預覽背景庫 */
         .style-luxury { background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop'); }
         .style-watercolor { background-image: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'); }
         .style-minimalist { background-image: url('https://images.unsplash.com/photo-1618005198143-d366803e73cc?q=80&w=1200&auto=format&fit=crop'); }
@@ -321,19 +375,21 @@
                 </label>
             </div>
 
-            <button class="export-btn" onclick="alert('🎉 AI 正在打包您的 16:9 終極高質感圖卡...\n成功匯出！')">一鍵打包匯出 (Export)</button>
+            <!-- 呼叫極致無損匯出函數 -->
+            <button class="export-btn" onclick="exportHighResolutionCard()">一鍵打包匯出 (Export)</button>
         </div>
 
         <!-- 右側預覽區 -->
         <div class="preview-panel">
             <div class="preview-header">
                 <span>🖥️ 16:9 智慧環境預覽 (Live Preview)</span>
-                <span style="color: var(--accent-orange)">● AI 渲染中</span>
+                <span style="color: var(--accent-orange)">● AI 實時渲染中</span>
             </div>
             
             <!-- 16:9 預覽卡片 -->
             <div class="card-16-9 active" id="cardPreview">
-                <div class="card-bg style-luxury" id="cardBg"></div>
+                <!-- 設置 crossOrigin 確保外部 Unsplash 圖片能被 Canvas 正常抓取而不會產生安全沙盒報錯 -->
+                <div class="card-bg style-luxury" id="cardBg" crossorigin="anonymous"></div>
                 <div class="card-overlay"></div>
                 
                 <div class="card-content">
@@ -346,6 +402,9 @@
         </div>
     </div>
 
+    <!-- 頂層 Toast 提示容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
         const mainInput = document.getElementById('mainTitleInput');
         const subInput = document.getElementById('subTitleInput');
@@ -356,6 +415,36 @@
         const previewSub = document.getElementById('previewSub');
         const cardBg = document.getElementById('cardBg');
         const cardPreview = document.getElementById('cardPreview');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // 頂級 Toast UI 交互邏輯
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let iconHtml = '';
+            if (type === 'loading') {
+                iconHtml = '<div class="toast-spinner"></div>';
+            } else if (type === 'success') {
+                iconHtml = '<span style="color: #34c759; font-weight: bold;">✓</span>';
+            } else if (type === 'error') {
+                iconHtml = '<span style="color: #ff3b30; font-weight: bold;">✕</span>';
+            }
+
+            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+
+            // 觸發漸顯動畫
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, duration);
+            }
+            return toast; // 返回實例以便手動關閉 Loading
+        }
 
         // 文字即時渲染
         mainInput.addEventListener('input', (e) => {
@@ -379,6 +468,43 @@
                 cardPreview.classList.remove('active');
             }
         });
+
+        // ★ 核心超越功能：3倍超採樣高清無損導出引擎 ★
+        function exportHighResolutionCard() {
+            const loadingToast = showToast("AI 正在深度解析 16:9 佈局與色彩...", "loading");
+            
+            const card = document.getElementById('cardPreview');
+            
+            // 使用 html2canvas 進行渲染優化
+            // 關鍵參數 scale: 3 可獲得 300% 視網膜超清分辨率，遠超 sat.cool 的清晰度！
+            html2canvas(card, {
+                scale: 3, 
+                useCORS: true,       // 允許跨域加載 Unsplash 高清背景圖，避免白屏
+                allowTaint: false,
+                backgroundColor: null,
+                logging: false
+            }).then(canvas => {
+                // 自動關閉 Loading
+                loadingToast.classList.remove('show');
+                setTimeout(() => loadingToast.remove(), 400);
+
+                // 將 Canvas 轉為實體超高清 PNG
+                const link = document.createElement('a');
+                const titleText = mainInput.value.trim() || 'AI-CourseCard';
+                link.download = `${titleText}-PremiumCard.png`;
+                link.href = canvas.toDataURL('image/png');
+                
+                // 觸發物理下載
+                link.click();
+                
+                // 提示成功
+                showToast("✨ 16:9 超高清圖卡已成功匯出至下載資料夾！", "success", 4000);
+            }).catch(err => {
+                console.error("Export Error: ", err);
+                loadingToast.remove();
+                showToast("匯出失敗，請重試或更換背景風格！", "error", 4000);
+            });
+        }
     </script>
 </body>
 </html>

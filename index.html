@@ -35,42 +35,57 @@
     </main>
 
     <script type="module">
-        import { PEXELS_API } from './config.js';
+    import { PEXELS_API } from './config.js';
 
-        // 綁定全域函式供 HTML 按鈕呼叫
-        window.generateBackground = async () => {
-            const box = document.getElementById('canvasBox');
-            const placeholder = document.getElementById('placeholderText');
-            try {
-                const res = await fetch(`https://api.pexels.com/v1/search?query=luxury+abstract+professional&per_page=20`, {
-                    headers: { 'Authorization': PEXELS_API }
-                });
-                const data = await res.json();
-                const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
-                if(photo) {
-                    box.style.backgroundImage = `url(${photo.src.large2x})`;
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const box = document.getElementById('canvasBox');
+
+    // 頂流渲染引擎：處理圖片縮放與畫布比例同步
+    window.generateBackground = async () => {
+        const placeholder = document.getElementById('placeholderText');
+        placeholder.innerText = "AI 正在注入視覺美學...";
+        
+        try {
+            const res = await fetch(`https://api.pexels.com/v1/search?query=luxury+minimalist+abstract&per_page=15`, {
+                headers: { 'Authorization': PEXELS_API }
+            });
+            const data = await res.json();
+            const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
+            
+            if(photo) {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = photo.src.large2x;
+                
+                img.onload = () => {
+                    // 同步畫布尺寸
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
                     placeholder.style.display = 'none';
-                }
-            } catch (err) { console.error("API 請求錯誤:", err); }
-        };
+                    console.log("渲染引擎：背景已載入");
+                };
+            }
+        } catch (e) {
+            placeholder.innerText = "載入失敗，請檢查網路連線。";
+        }
+    };
 
-        window.setPos = (pos) => {
-            document.getElementById('textOverlay').style.alignItems = pos === 'left' ? 'flex-start' : 'flex-end';
-            document.getElementById('textOverlay').style.textAlign = pos === 'left' ? 'left' : 'right';
-        };
+    // 對齊控制：利用 Flexbox 視覺錨點
+    window.setPos = (pos) => {
+        const textOverlay = document.getElementById('textOverlay');
+        textOverlay.style.alignItems = pos === 'left' ? 'flex-start' : 'flex-end';
+        textOverlay.style.textAlign = pos === 'left' ? 'left' : 'right';
+    };
 
-        window.exportResult = () => {
-            alert("正在套用電影級濾鏡並匯出...");
-            // 這裡未來可接 html2canvas 進行渲染
-        };
-
-        // 即時輸入動畫
-        document.getElementById('mainTxt').addEventListener('input', (e) => {
-            const title = document.getElementById('titleDisplay');
-            title.innerText = e.target.value;
-            title.classList.remove('opacity-0', 'translate-y-4');
-            title.classList.add('opacity-100', 'translate-y-0');
-        });
-    </script>
+    // 即時文字渲染動畫
+    document.getElementById('mainTxt').addEventListener('input', (e) => {
+        const title = document.getElementById('titleDisplay');
+        title.innerText = e.target.value;
+        title.classList.remove('opacity-0', 'translate-y-4');
+        title.classList.add('opacity-100', 'translate-y-0');
+    });
+</script>
 </body>
 </html>

@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Course Card Generator 5.0 - 超越 Sat.cool</title>
-    <!-- 引入高解析度 HTML 轉圖片庫 (超越 sat.cool 的核心，確保匯出不模糊) -->
+    <title>AI Course Card Generator 6.0 - Premium Magazine Edition</title>
+    <!-- 引入 Google Fonts 高清字體：優雅襯線體 Playfair Display & Noto Serif TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- 引入高解析度 HTML 轉圖片庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --bg-glow: radial-gradient(circle at 50% 50%, #1a1528 0%, #09070f 100%);
-            --glass-bg: rgba(255, 255, 255, 0.03);
+            --bg-glow: radial-gradient(circle at 50% 50%, #120f1d 0%, #050408 100%);
+            --glass-bg: rgba(255, 255, 255, 0.02);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-glow: 0px 8px 32px 0px rgba(0, 0, 0, 0.37);
+            --glass-glow: 0px 20px 50px 0px rgba(0, 0, 0, 0.5);
+            --accent-gold: #d4af37;
             --accent-orange: #ff5e00;
             --text-primary: #f5f5f7;
-            --text-secondary: #86868b;
+            --text-secondary: #a1a1a6;
         }
 
         body {
             margin: 0;
             padding: 0;
             background: var(--bg-glow);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
@@ -31,47 +34,72 @@
             overflow-x: hidden;
         }
 
-        /* 頂級背景微光粒子 */
         .ambient-glow {
             position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(138, 43, 226, 0.12) 0%, rgba(0,0,0,0) 70%);
-            top: 10%;
-            left: 15%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(138, 43, 226, 0.05) 40%, rgba(0,0,0,0) 70%);
+            top: -10%;
+            left: 10%;
             z-index: -1;
-            filter: blur(50px);
+            filter: blur(80px);
         }
 
         .container {
-            width: 90%;
-            max-width: 1200px;
+            width: 92%;
+            max-width: 1300px;
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
+            grid-template-columns: 420px 1fr;
+            gap: 40px;
             padding: 40px;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            border-radius: 32px;
             box-shadow: var(--glass-glow);
             z-index: 1;
         }
 
-        /* 左側控制面板 */
+        /* 左側主控面板 */
         .control-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .control-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
         }
 
         h1 {
-            font-size: 24px;
-            margin: 0 0 5px 0;
-            background: linear-gradient(135deg, #fff 0%, #a1a1a6 100%);
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, #d4af37 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .panel-desc {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+            margin: 5px 0;
         }
 
         .input-group {
@@ -81,53 +109,67 @@
         }
 
         label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         input, textarea, select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 12px;
+            padding: 14px;
             color: #fff;
             font-size: 14px;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         input:focus, textarea:focus, select:focus {
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 10px rgba(255,255,255,0.05);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+            background: rgba(0, 0, 0, 0.6);
         }
 
-        /* 風格選擇下拉選單 */
-        select {
+        /* 顏色選擇列 */
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .color-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 40px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
         }
 
-        /* 必修開關 */
+        .color-dot.active {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+
+        /* 切換紐 */
         .toggle-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.15);
-            padding: 12px;
+            background: rgba(255,255,255,0.02);
+            padding: 14px;
             border-radius: 12px;
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 26px;
+            width: 46px;
+            height: 24px;
         }
 
         .switch input { display: none; }
@@ -136,153 +178,252 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #3a3a3c;
-            transition: .4s;
-            border-radius: 34px;
+            background-color: #333;
+            transition: .3s;
+            border-radius: 24px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 16px;
+            width: 16px;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
         }
 
         input:checked + .slider {
-            background-color: var(--accent-orange);
+            background-color: var(--accent-gold);
         }
 
         input:checked + .slider:before {
-            transform: translateX(24px);
+            transform: translateX(22px);
         }
 
-        /* 頂級實體感按鈕 */
+        /* 奢華流光按鈕 */
         .export-btn {
-            background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%);
-            color: white;
+            background: linear-gradient(135deg, #e5c158 0%, #b8860b 100%);
+            color: #0d0b14;
             border: none;
             padding: 16px;
             border-radius: 14px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 15px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
-            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 1px;
+            margin-top: 10px;
         }
 
         .export-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 94, 0, 0.5);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.45);
         }
 
         /* 右側預覽區 */
         .preview-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
+            justify-content: center;
         }
 
         .preview-header {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 8px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
         }
 
-        /* 16:9 實體預覽卡片 (增加 crossOrigin 屬性以利導出) */
+        /* 👑 16:9 雜誌級黃金排版 */
         .card-16-9 {
             width: 100%;
             aspect-ratio: 16/9;
-            background: #0d0b14;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
+            background: #09080e;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
             position: relative;
             overflow: hidden;
             display: flex;
-            align-items: center;
-            padding: 40px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 45px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
             box-sizing: border-box;
+            transition: all 0.5s ease;
         }
 
-        /* 圖片背景 */
+        /* 高清背景與微光遮罩層 */
         .card-bg {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.45; /* 略微調亮背景，使匯出的視覺飽和度更震撼 */
+            opacity: 0.35;
             z-index: 1;
-            transition: all 0.5s ease;
+            transition: all 0.8s ease;
+            transform: scale(1.02);
         }
 
-        /* 磨砂玻璃覆蓋層 */
+        /* 深度流體遮罩 */
         .card-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, rgba(13,11,20,0.92) 35%, rgba(13,11,20,0.2) 100%);
+            background: linear-gradient(110deg, rgba(9,8,14,0.96) 25%, rgba(9,8,14,0.7) 60%, rgba(9,8,14,0.2) 100%);
             z-index: 2;
         }
 
-        /* 內容物排版 */
-        .card-content {
-            position: relative;
-            z-index: 3;
-            max-width: 65%;
+        /* 高訂雜誌級：細部幾何輔助線與裝飾 */
+        .magazine-grid {
+            position: absolute;
+            top: 25px; left: 25px; right: 25px; bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
             pointer-events: none;
+            z-index: 3;
         }
 
+        .magazine-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 45px;
+            width: 1px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 80%);
+            z-index: 3;
+        }
+
+        /* 頂部裝飾元素 */
+        .card-top-meta {
+            position: relative;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .edition-badge {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--accent-gold);
+            font-size: 9px;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* 核心文字排版（雜誌風黃金版面） */
+        .card-body {
+            position: relative;
+            z-index: 4;
+            max-width: 70%;
+            margin-top: auto;
+            margin-bottom: auto;
+            transform: translateX(10px);
+            transition: all 0.4s ease;
+        }
+
+        /* 兩大字體美學：中文用高雅襯線(Noto Serif)，英文/數字用極簡Sans */
         .card-title {
-            font-size: 2.4rem;
-            font-weight: 800;
-            margin-bottom: 14px;
-            color: #fff;
-            line-height: 1.3;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 2.85rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.25;
             letter-spacing: 1.5px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 18px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-title span.english-accent {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            font-style: italic;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            margin-top: -2px;
         }
 
         .card-sub {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.75);
-            line-height: 1.6;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.65;
             font-weight: 400;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 12px;
         }
 
-        /* 必修標籤 */
-        .badge-required {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            background: var(--accent-orange);
-            color: white;
-            padding: 8px 22px;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(255, 94, 0, 0.5);
-            letter-spacing: 1px;
-            z-index: 3;
+        /* 底部資訊列 */
+        .card-bottom {
+            position: relative;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .instructor-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .instructor-label {
+            font-size: 9px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .instructor-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        /* 優雅圓形印章式必修標籤 */
+        .badge-premium {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #996515 100%);
+            color: #120f1d;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+            border: 2px solid rgba(255,255,255,0.2);
             opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0.6) rotate(-15deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .active .badge-required {
+        .active .badge-premium {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) rotate(-5deg);
         }
 
-        /* 頂級毛玻璃通知元件 (Toast Notifications) */
+        /* 頂級毛玻璃通知元件 */
         .toast-container {
             position: fixed;
             top: 30px;
@@ -294,22 +435,21 @@
         }
 
         .toast {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(18, 15, 29, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 16px 24px;
             border-radius: 16px;
             color: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            transform: translateY(-20px) scale(0.9);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: translateY(-20px) scale(0.95);
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             gap: 12px;
             font-size: 14px;
-            font-weight: 500;
         }
 
         .toast.show {
@@ -320,8 +460,8 @@
         .toast-spinner {
             width: 18px;
             height: 18px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top-color: var(--accent-orange);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent-gold);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -330,10 +470,10 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 預覽背景庫 */
-        .style-luxury { background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop'); }
-        .style-watercolor { background-image: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'); }
-        .style-minimalist { background-image: url('https://images.unsplash.com/photo-1618005198143-d366803e73cc?q=80&w=1200&auto=format&fit=crop'); }
+        /* 背景風格庫 */
+        .style-abstract { background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop'); }
+        .style-darktech { background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop'); }
+        .style-art { background-image: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'); }
     </style>
 </head>
 <body>
@@ -341,126 +481,144 @@
     <div class="ambient-glow"></div>
 
     <div class="container">
-        <!-- 左側控制面板 -->
+        <!-- 左側主控面板 -->
         <div class="control-panel">
             <div>
-                <h1>AI 圖卡生成器 5.0</h1>
-                <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">超越 Sat.cool 的極致視覺體驗</p>
+                <h1>AI 視覺包裝引擎 6.0</h1>
+                <p class="panel-desc">專為超越 SAT.cool 精品美學量身訂製</p>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="input-group">
+                <label>課程主標題</label>
+                <input type="text" id="mainTitleInput" value="高情商銷售說服術" placeholder="請輸入主標題">
             </div>
 
             <div class="input-group">
-                <label>1. 主標題 (Main Title)</label>
-                <input type="text" id="mainTitleInput" value="新人銷售基礎入門" placeholder="請輸入主標題">
+                <label>英文美學副標題 (排版核心)</label>
+                <input type="text" id="engTitleInput" value="The Art of High-EQ Conversational Sales" placeholder="請輸入英文字句">
             </div>
 
             <div class="input-group">
-                <label>2. 副標題 (Sub-Title)</label>
-                <textarea id="subTitleInput" rows="3" placeholder="請輸入副標題">金城武親自示範・從零開始・心態與技巧</textarea>
+                <label>課程重點大綱 (左側邊線對齊)</label>
+                <textarea id="subTitleInput" rows="3" placeholder="請輸入副標題">讀心術拆解・24種頂尖話術・金牌銷售的專屬心智模型</textarea>
             </div>
 
             <div class="input-group">
-                <label>3. 智慧 AI 背景風格 (AI Background Style)</label>
+                <label>主講導師 / 機構</label>
+                <input type="text" id="instructorInput" value="LEO LEE × 頂尖商業學院" placeholder="請輸入主講人">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="input-group">
+                <label>16:9 背景美術風格</label>
                 <select id="styleSelect">
-                    <option value="style-luxury">尊爵科技奢華 (Luxury Tech)</option>
-                    <option value="style-watercolor">藝術溫暖水彩 (Warm Watercolor)</option>
-                    <option value="style-minimalist">現代極簡漸層 (Minimalist Gradient)</option>
+                    <option value="style-abstract">流體奢華漸變 (Abstract Liquid)</option>
+                    <option value="style-darktech">極客深邃科技 (Deep Cybertech)</option>
+                    <option value="style-art">文藝古典水彩 (Fine Art Watercolor)</option>
                 </select>
             </div>
 
+            <div class="input-group">
+                <label>金屬主題奢華配色</label>
+                <div class="color-palette" id="colorPalette">
+                    <div class="color-dot active" style="background: #d4af37;" data-color="#d4af37"></div> <!-- 香檳金 -->
+                    <div class="color-dot" style="background: #ff5e00;" data-color="#ff5e00"></div> <!-- 頂級橘 -->
+                    <div class="color-dot" style="background: #00e5ff;" data-color="#00e5ff"></div> <!-- 科技藍 -->
+                    <div class="color-dot" style="background: #e0e0e0;" data-color="#e0e0e0"></div> <!-- 現代銀 -->
+                </div>
+            </div>
+
             <div class="toggle-container">
-                <span style="font-size: 14px; font-weight: 500;">是否啟用 "必修" 標籤</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">啟用印章式「必修」標籤</span>
                 <label class="switch">
                     <input type="checkbox" id="requiredToggle" checked>
                     <span class="slider"></span>
                 </label>
             </div>
 
-            <!-- 呼叫極致無損匯出函數 -->
-            <button class="export-btn" onclick="exportHighResolutionCard()">一鍵打包匯出 (Export)</button>
+            <button class="export-btn" onclick="exportMagazineCard()">一鍵打包超高清匯出</button>
         </div>
 
         <!-- 右側預覽區 -->
         <div class="preview-panel">
             <div class="preview-header">
-                <span>🖥️ 16:9 智慧環境預覽 (Live Preview)</span>
-                <span style="color: var(--accent-orange)">● AI 實時渲染中</span>
+                <span>🖥️ 16:9 Premium Real-time Canvas</span>
+                <span style="color: var(--accent-gold); font-weight: 600;">● HD RENDER ACTIVE</span>
             </div>
             
-            <!-- 16:9 預覽卡片 -->
+            <!-- 16:9 實體卡片 -->
             <div class="card-16-9 active" id="cardPreview">
-                <!-- 設置 crossOrigin 確保外部 Unsplash 圖片能被 Canvas 正常抓取而不會產生安全沙盒報錯 -->
-                <div class="card-bg style-luxury" id="cardBg" crossorigin="anonymous"></div>
+                <div class="card-bg style-abstract" id="cardBg" crossorigin="anonymous"></div>
                 <div class="card-overlay"></div>
                 
-                <div class="card-content">
-                    <div class="card-title" id="previewTitle">新人銷售基礎入門</div>
-                    <div class="card-sub" id="previewSub">金城武親自示範・從零開始・心態與技巧</div>
+                <!-- 雜誌輔助線 -->
+                <div class="magazine-grid"></div>
+                <div class="magazine-line"></div>
+
+                <!-- 頂部資訊 -->
+                <div class="card-top-meta">
+                    <span>Exclusive Course Masterclass</span>
+                    <span class="edition-badge">Vol. 01</span>
+                </div>
+                
+                <!-- 中間文字內容 (黃金排版比例) -->
+                <div class="card-body">
+                    <div class="card-title">
+                        <span id="previewTitle">高情商銷售說服術</span>
+                        <span class="english-accent" id="previewEng">The Art of High-EQ Conversational Sales</span>
+                    </div>
+                    <div class="card-sub" id="previewSub">讀心術拆解・24種頂尖話術・金牌銷售的專屬心智模型</div>
                 </div>
 
-                <div class="badge-required" id="badgeReq">必修</div>
+                <!-- 底部資訊與必修印章 -->
+                <div class="card-bottom">
+                    <div class="instructor-info">
+                        <span class="instructor-label">Instructor & Publisher</span>
+                        <span class="instructor-name" id="previewInstructor">LEO LEE × 頂尖商業學院</span>
+                    </div>
+                    <div class="badge-premium" id="badgeReq">必修</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 頂層 Toast 提示容器 -->
+    <!-- 頂層 Toast 容器 -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // 取得控制元件
         const mainInput = document.getElementById('mainTitleInput');
+        const engInput = document.getElementById('engTitleInput');
         const subInput = document.getElementById('subTitleInput');
+        const instructorInput = document.getElementById('instructorInput');
         const styleSelect = document.getElementById('styleSelect');
         const requiredToggle = document.getElementById('requiredToggle');
+        const colorPalette = document.getElementById('colorPalette');
 
+        // 取得預覽元件
         const previewTitle = document.getElementById('previewTitle');
+        const previewEng = document.getElementById('previewEng');
         const previewSub = document.getElementById('previewSub');
+        const previewInstructor = document.getElementById('previewInstructor');
         const cardBg = document.getElementById('cardBg');
         const cardPreview = document.getElementById('cardPreview');
         const toastContainer = document.getElementById('toastContainer');
 
-        // 頂級 Toast UI 交互邏輯
-        function showToast(message, type = 'info', duration = 3000) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            
-            let iconHtml = '';
-            if (type === 'loading') {
-                iconHtml = '<div class="toast-spinner"></div>';
-            } else if (type === 'success') {
-                iconHtml = '<span style="color: #34c759; font-weight: bold;">✓</span>';
-            } else if (type === 'error') {
-                iconHtml = '<span style="color: #ff3b30; font-weight: bold;">✕</span>';
-            }
+        // 即時渲染輸入內容
+        mainInput.addEventListener('input', (e) => previewTitle.innerText = e.target.value || "請輸入主標題");
+        engInput.addEventListener('input', (e) => previewEng.innerText = e.target.value || "");
+        subInput.addEventListener('input', (e) => previewSub.innerText = e.target.value || "請輸入大綱重點");
+        instructorInput.addEventListener('input', (e) => previewInstructor.innerText = e.target.value || "主講人");
 
-            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
-            toastContainer.appendChild(toast);
-
-            // 觸發漸顯動畫
-            setTimeout(() => toast.classList.add('show'), 10);
-
-            if (type !== 'loading') {
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 400);
-                }, duration);
-            }
-            return toast; // 返回實例以便手動關閉 Loading
-        }
-
-        // 文字即時渲染
-        mainInput.addEventListener('input', (e) => {
-            previewTitle.innerText = e.target.value || "請輸入主標題";
-        });
-
-        subInput.addEventListener('input', (e) => {
-            previewSub.innerText = e.target.value || "請輸入副標題";
-        });
-
-        // 智慧背景即時切換
+        // 背景風格切換
         styleSelect.addEventListener('change', (e) => {
             cardBg.className = 'card-bg ' + e.target.value;
         });
 
-        // 必修標籤開關
+        // 必修印章切換
         requiredToggle.addEventListener('change', (e) => {
             if(e.target.checked) {
                 cardPreview.classList.add('active');
@@ -469,40 +627,71 @@
             }
         });
 
-        // ★ 核心超越功能：3倍超採樣高清無損導出引擎 ★
-        function exportHighResolutionCard() {
-            const loadingToast = showToast("AI 正在深度解析 16:9 佈局與色彩...", "loading");
+        // 主題金屬色切換
+        colorPalette.addEventListener('click', (e) => {
+            if (e.target.classList.contains('color-dot')) {
+                document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const selectedColor = e.target.getAttribute('data-color');
+                document.documentElement.style.setProperty('--accent-gold', selectedColor);
+            }
+        });
+
+        // 頂級 Toast 提示
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
             
+            let iconHtml = '';
+            if (type === 'loading') {
+                iconHtml = '<div class="toast-spinner"></div>';
+            } else if (type === 'success') {
+                iconHtml = '<span style="color: var(--accent-gold); font-weight: bold;">✓</span>';
+            } else if (type === 'error') {
+                iconHtml = '<span style="color: #ff3b30; font-weight: bold;">✕</span>';
+            }
+
+            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, duration);
+            }
+            return toast;
+        }
+
+        // 3倍無損 Retina 高解析度匯出引擎
+        function exportMagazineCard() {
+            const loadingToast = showToast("高級渲染器正在建置 16:9 幾何與字體柵格...", "loading");
             const card = document.getElementById('cardPreview');
             
-            // 使用 html2canvas 進行渲染優化
-            // 關鍵參數 scale: 3 可獲得 300% 視網膜超清分辨率，遠超 sat.cool 的清晰度！
             html2canvas(card, {
                 scale: 3, 
-                useCORS: true,       // 允許跨域加載 Unsplash 高清背景圖，避免白屏
+                useCORS: true,
                 allowTaint: false,
                 backgroundColor: null,
                 logging: false
             }).then(canvas => {
-                // 自動關閉 Loading
                 loadingToast.classList.remove('show');
                 setTimeout(() => loadingToast.remove(), 400);
 
-                // 將 Canvas 轉為實體超高清 PNG
                 const link = document.createElement('a');
-                const titleText = mainInput.value.trim() || 'AI-CourseCard';
+                const titleText = mainInput.value.trim() || 'AI-PremiumCard';
                 link.download = `${titleText}-PremiumCard.png`;
                 link.href = canvas.toDataURL('image/png');
-                
-                // 觸發物理下載
                 link.click();
                 
-                // 提示成功
-                showToast("✨ 16:9 超高清圖卡已成功匯出至下載資料夾！", "success", 4000);
+                showToast("✨ 雜誌級超高畫質 16:9 課程卡已匯出！", "success", 4000);
             }).catch(err => {
-                console.error("Export Error: ", err);
+                console.error(err);
                 loadingToast.remove();
-                showToast("匯出失敗，請重試或更換背景風格！", "error", 4000);
+                showToast("匯出失敗，請重試！", "error", 4000);
             });
         }
     </script>

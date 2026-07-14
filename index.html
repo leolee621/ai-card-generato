@@ -1,75 +1,114 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>Horizon Orange | 頂級 AI 知識介面</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root { --orange: #ff5e00; --bg: #0a0806; }
-    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; margin: 0; }
-    
-    #dynamicBg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #2e1202 0%, #0a0806 100%); transition: opacity 0.8s ease; }
-    .main-wrapper { display: grid; grid-template-columns: 400px 500px; gap: 40px; }
-    
-    .panel { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); padding: 40px; border-radius: 30px; border: 1px solid rgba(255,94,0,0.3); }
-    input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--orange); background: transparent; color: white; margin: 20px 0; }
-    .gen-btn { width: 100%; padding: 15px; border-radius: 15px; border: none; background: var(--orange); color: white; font-weight: 900; cursor: pointer; }
-    
-    .card-area { perspective: 1000px; cursor: pointer; }
-    .card { width: 500px; height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.17, 0.67, 0.38, 1.25); }
-    .card.flipped { transform: rotateY(180deg); }
-    .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 40px; border-radius: 20px; border: 1px solid var(--orange); background: rgba(0,0,0,0.6); backface-visibility: hidden; }
-    .back { transform: rotateY(180deg); text-align: center; }
-  </style>
+    <meta charset="UTF-8">
+    <title>AI Pro Studio | Ultimate Card Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --glass: rgba(255, 255, 255, 0.1); --border: 1px solid rgba(255, 255, 255, 0.3); }
+        body { margin: 0; background: #080808; color: #fff; font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        
+        #stage { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; transition: background 1.2s ease; background-size: cover; background-position: center; }
+        #card-container { width: 800px; aspect-ratio: 16/9; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); border: var(--border); border-radius: 20px; padding: 60px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; }
+        #card-container::after { content: ""; position: absolute; inset: 15px; border: 1px solid rgba(255,255,255,0.15); pointer-events: none; }
+        
+        .text-layer { display: flex; flex-direction: column; z-index: 2; height: 100%; transition: 0.5s; }
+        #out-title { font-size: 3.5rem; font-weight: 800; margin: 0; line-height: 1.1; letter-spacing: -0.02em; }
+        #out-sub { font-size: 1.5rem; opacity: 0.8; margin-top: 10px; }
+        
+        #panel { width: 320px; background: rgba(15,15,15,0.95); border-left: var(--border); padding: 40px; display: flex; flex-direction: column; gap: 20px; }
+        input, select, button { padding: 14px; border-radius: 12px; border: 1px solid #333; background: #1a1a1a; color: white; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; background: #fff; color: #000; font-weight: bold; border: none; transition: 0.3s; }
+        button:hover { transform: scale(1.02); opacity: 0.9; }
+        
+        #portrait-preview { position: absolute; right: 0; bottom: 0; height: 80%; pointer-events: none; mix-blend-mode: luminosity; mask-image: linear-gradient(to top, black, transparent); }
+    </style>
 </head>
 <body>
-  <div id="dynamicBg"></div>
-  <div class="main-wrapper">
-    <div class="panel">
-      <h1>知識生成系統</h1>
-      <input type="text" id="theme" placeholder="輸入探索主題..." value="量子糾纏">
-      <button class="gen-btn" onclick="startProcess()">執行生成</button>
+
+<div id="stage">
+    <div id="card-container">
+        <div id="text-wrapper" class="text-layer" style="align-items: flex-start;">
+            <h1 id="out-title">主標題</h1>
+            <p id="out-sub">副標題</p>
+        </div>
+        <img id="portrait-preview" src="" style="display:none;">
     </div>
-    <div class="card-area" onclick="document.querySelector('.card').classList.toggle('flipped')">
-      <div class="card">
-        <div class="face front"><h2 id="title">量子糾纏</h2></div>
-        <div class="face back"><p id="desc">點擊執行生成以載入核心脈絡...</p></div>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <script>
-    // 請將下方填入你的 API Key
-    const API_KEY = '請輸入你的PexelsAPIKey'; 
+<div id="panel">
+    <h2>STUDIO</h2>
+    <input type="text" id="in-title" placeholder="輸入主標題..." oninput="update()">
+    <input type="text" id="in-sub" placeholder="輸入副標題..." oninput="update()">
+    <select id="layout-select" onchange="update()">
+        <option value="left">左對齊排版</option>
+        <option value="right">右對齊排版</option>
+        <option value="none">隱藏標題</option>
+    </select>
+    <input type="file" id="portrait-upload" onchange="uploadPortrait(this)">
+    <button onclick="changeBackground()">✨ 魔法更換背景</button>
+    <button onclick="exportCard()" style="background: #007AFF; color: white;">一鍵匯出</button>
+</div>
 
-    async function startProcess() {
-      const theme = document.getElementById('theme').value;
-      document.getElementById('title').innerText = theme;
-      
-      // 更新背景與內容
-      fetchBg(theme);
-      simulateTyping(document.getElementById('desc'), `正在深入解析「${theme}」的結構。去除所有雜訊，僅保留知識的精髓。`);
-    }
+<script>
+    const PEXELS_KEY = 'RKN05GazMkLLJiykYmmsZTWELjtDPmMexoOahZz8LwoveEHwug6JhErh'; // 填入 API KEY
 
-    async function fetchBg(query) {
-      const bg = document.getElementById('dynamicBg');
-      try {
-        const res = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=1`, { headers: { Authorization: API_KEY } });
-        const data = await res.json();
-        if(data.photos?.length) {
-          bg.style.backgroundImage = `url(${data.photos[0].src.large2x})`;
+    function update() {
+        const title = document.getElementById('out-title');
+        const sub = document.getElementById('out-sub');
+        const wrapper = document.getElementById('text-wrapper');
+        const layout = document.getElementById('layout-select').value;
+        
+        title.innerText = document.getElementById('in-title').value || "主標題";
+        sub.innerText = document.getElementById('in-sub').value || "副標題";
+        
+        if (layout === 'none') { wrapper.style.display = 'none'; }
+        else { 
+            wrapper.style.display = 'flex'; 
+            wrapper.style.alignItems = layout === 'left' ? 'flex-start' : 'flex-end';
+            title.style.textAlign = layout;
+            sub.style.textAlign = layout;
         }
-      } catch(e) { console.log("使用備用渲染模式"); }
     }
 
-    function simulateTyping(el, text) {
-      el.innerText = '';
-      let i = 0;
-      const interval = setInterval(() => {
-        el.innerText += text[i++];
-        if(i >= text.length) clearInterval(interval);
-      }, 30);
+    async function changeBackground() {
+        const res = await fetch(`https://api.pexels.com/v1/search?query=abstract&per_page=1`, { headers: { Authorization: PEXELS_KEY } });
+        const data = await res.json();
+        const url = data.photos[0].src.original;
+        document.getElementById('stage').style.backgroundImage = `url(${url})`;
+        
+        const img = new Image(); img.crossOrigin = "Anonymous"; img.src = url;
+        img.onload = () => {
+            const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100;
+            canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
+            const [r, g, b] = canvas.getContext('2d').getImageData(0,0,1,1).data;
+            const brightness = (r*0.299 + g*0.587 + b*0.114);
+            document.getElementById('out-title').style.color = brightness > 128 ? '#000' : '#fff';
+            document.getElementById('out-sub').style.color = brightness > 128 ? '#333' : '#ccc';
+        };
     }
-  </script>
+
+    function uploadPortrait(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('portrait-preview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function exportCard() {
+        const btn = event.target;
+        btn.innerText = "正在渲染藝術感...";
+        html2canvas(document.getElementById('card-container')).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `CourseCard_${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            btn.innerText = "一鍵匯出";
+        });
+    }
+</script>
 </body>
 </html>

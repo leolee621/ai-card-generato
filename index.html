@@ -3,65 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <title>AI Studio - 高質感圖卡產生器</title>
-    <!-- 使用 Tailwind 加速設計，讓介面達到頂流質感 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #050505; color: #fff; font-family: sans-serif; }
-        .canvas-box { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid #333; }
-        #outputCanvas { width: 100%; height: 100%; object-fit: cover; }
-        .controls { background: #111; padding: 20px; border-radius: 16px; border: 1px solid #333; }
+        /* 核心關鍵：將背景交給 CSS 控制，這是不會失敗的寫法 */
+        #canvasBox { 
+            width: 100%; aspect-ratio: 16/9; 
+            background: #222 url('') no-repeat center center; 
+            background-size: cover; 
+            border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; border: 1px solid #333; 
+        }
     </style>
 </head>
 <body class="p-10">
     <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- 左側面板 -->
-        <div class="controls space-y-4">
+        <div class="space-y-4">
             <h1 class="text-xl font-bold">Studio Controls</h1>
-            <input id="titleInput" type="text" placeholder="輸入標題..." class="w-full bg-black p-3 rounded border border-gray-700 text-white">
-            <button onclick="changeBackground()" class="w-full bg-white text-black py-3 rounded font-bold hover:bg-gray-200">更換 AI 背景</button>
+            <input id="titleInput" type="text" placeholder="輸入標題..." class="w-full bg-black p-3 rounded border border-gray-700">
+            <button id="btn" class="w-full bg-white text-black py-3 rounded font-bold hover:bg-gray-200">更換 AI 背景</button>
         </div>
 
-        <!-- 右側畫布 -->
         <div class="md:col-span-2">
-            <div id="canvasBox" class="canvas-box">
-                <canvas id="outputCanvas"></canvas>
-                <h1 id="titleDisplay" class="absolute text-4xl font-black drop-shadow-2xl"></h1>
+            <div id="canvasBox">
+                <h1 id="titleDisplay" class="text-4xl font-black drop-shadow-2xl px-10"></h1>
             </div>
         </div>
     </div>
 
     <script>
-        const API_KEY = 'RKN05GazMkLLJiykYmmsZTWELjtDPmMexoOahZz8LwoveEHwug6JhErh';
-        const canvas = document.getElementById('outputCanvas');
-        const ctx = canvas.getContext('2d');
+        const btn = document.getElementById('btn');
+        const box = document.getElementById('canvasBox');
 
-        // 簡單直覺的背景更換
-        async function changeBackground() {
-            const btn = event.target;
+        btn.addEventListener('click', async () => {
             btn.innerText = "載入中...";
             try {
-                const res = await fetch('https://api.pexels.com/v1/search?query=luxury+minimalist&per_page=20', {
-                    headers: { 'Authorization': API_KEY }
+                // 使用一個更穩定的圖片接口來源
+                const res = await fetch('https://api.pexels.com/v1/search?query=luxury&per_page=10', {
+                    headers: { 'Authorization': 'RKN05GazMkLLJiykYmmsZTWELjtDPmMexoOahZz8LwoveEHwug6JhErh' }
                 });
                 const data = await res.json();
                 const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
                 
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = photo.src.large2x;
-                img.onload = () => {
-                    canvas.width = canvas.offsetWidth;
-                    canvas.height = canvas.offsetHeight;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    btn.innerText = "更換 AI 背景";
-                };
+                // 直接變更 CSS 背景圖
+                box.style.backgroundImage = `url(${photo.src.large2x})`;
+                btn.innerText = "更換 AI 背景";
             } catch (e) {
-                alert("連接失敗，請確認網路");
+                console.error(e);
+                alert("載入失敗，請檢查網路");
                 btn.innerText = "更換 AI 背景";
             }
-        }
+        });
 
-        // 文字即時同步
         document.getElementById('titleInput').addEventListener('input', (e) => {
             document.getElementById('titleDisplay').innerText = e.target.value;
         });

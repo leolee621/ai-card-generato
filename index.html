@@ -2,33 +2,35 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pro Studio | Ultimate Card Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { --glass: rgba(255, 255, 255, 0.1); --border: 1px solid rgba(255, 255, 255, 0.3); }
-        body { margin: 0; background: #080808; color: #fff; font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: #050505; color: #fff; font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
+        /* 16:9 專業舞台 */
         #stage { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; transition: background 1.2s ease; background-size: cover; background-position: center; }
-        #card-container { width: 800px; aspect-ratio: 16/9; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); border: var(--border); border-radius: 20px; padding: 60px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; }
+        #card-container { width: 800px; aspect-ratio: 16/9; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); border: var(--border); border-radius: 20px; padding: 60px; position: relative; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; transition: all 0.5s ease; }
         #card-container::after { content: ""; position: absolute; inset: 15px; border: 1px solid rgba(255,255,255,0.15); pointer-events: none; }
         
-        .text-layer { display: flex; flex-direction: column; z-index: 2; height: 100%; transition: 0.5s; }
+        .text-layer { z-index: 2; transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
         #out-title { font-size: 3.5rem; font-weight: 800; margin: 0; line-height: 1.1; letter-spacing: -0.02em; }
-        #out-sub { font-size: 1.5rem; opacity: 0.8; margin-top: 10px; }
+        #out-sub { font-size: 1.5rem; opacity: 0.8; margin-top: 15px; }
         
-        #panel { width: 320px; background: rgba(15,15,15,0.95); border-left: var(--border); padding: 40px; display: flex; flex-direction: column; gap: 20px; }
+        #panel { width: 350px; background: rgba(10,10,10,0.98); border-left: var(--border); padding: 40px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
         input, select, button { padding: 14px; border-radius: 12px; border: 1px solid #333; background: #1a1a1a; color: white; width: 100%; box-sizing: border-box; }
         button { cursor: pointer; background: #fff; color: #000; font-weight: bold; border: none; transition: 0.3s; }
         button:hover { transform: scale(1.02); opacity: 0.9; }
         
-        #portrait-preview { position: absolute; right: 0; bottom: 0; height: 80%; pointer-events: none; mix-blend-mode: luminosity; mask-image: linear-gradient(to top, black, transparent); }
+        #portrait-preview { position: absolute; right: 0; bottom: 0; height: 90%; pointer-events: none; mix-blend-mode: luminosity; mask-image: linear-gradient(to top, black, transparent); }
     </style>
 </head>
 <body>
 
 <div id="stage">
     <div id="card-container">
-        <div id="text-wrapper" class="text-layer" style="align-items: flex-start;">
+        <div id="text-wrapper" class="text-layer">
             <h1 id="out-title">主標題</h1>
             <p id="out-sub">副標題</p>
         </div>
@@ -37,21 +39,21 @@
 </div>
 
 <div id="panel">
-    <h2>STUDIO</h2>
+    <h2>AI STUDIO</h2>
     <input type="text" id="in-title" placeholder="輸入主標題..." oninput="update()">
     <input type="text" id="in-sub" placeholder="輸入副標題..." oninput="update()">
     <select id="layout-select" onchange="update()">
-        <option value="left">左對齊排版</option>
-        <option value="right">右對齊排版</option>
+        <option value="flex-start">左對齊排版</option>
+        <option value="flex-end">右對齊排版</option>
         <option value="none">隱藏標題</option>
     </select>
-    <input type="file" id="portrait-upload" onchange="uploadPortrait(this)">
+    <input type="file" onchange="uploadPortrait(this)">
     <button onclick="changeBackground()">✨ 魔法更換背景</button>
     <button onclick="exportCard()" style="background: #007AFF; color: white;">一鍵匯出</button>
 </div>
 
 <script>
-    const PEXELS_KEY = 'RKN05GazMkLLJiykYmmsZTWELjtDPmMexoOahZz8LwoveEHwug6JhErh'; // 填入 API KEY
+    const PEXELS_KEY = 'YOUR_PEXELS_API_KEY'; // 在此填入你的金鑰
 
     function update() {
         const title = document.getElementById('out-title');
@@ -63,12 +65,7 @@
         sub.innerText = document.getElementById('in-sub').value || "副標題";
         
         if (layout === 'none') { wrapper.style.display = 'none'; }
-        else { 
-            wrapper.style.display = 'flex'; 
-            wrapper.style.alignItems = layout === 'left' ? 'flex-start' : 'flex-end';
-            title.style.textAlign = layout;
-            sub.style.textAlign = layout;
-        }
+        else { wrapper.style.display = 'block'; wrapper.style.textAlign = layout === 'flex-start' ? 'left' : 'right'; }
     }
 
     async function changeBackground() {
@@ -83,8 +80,8 @@
             canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
             const [r, g, b] = canvas.getContext('2d').getImageData(0,0,1,1).data;
             const brightness = (r*0.299 + g*0.587 + b*0.114);
-            document.getElementById('out-title').style.color = brightness > 128 ? '#000' : '#fff';
-            document.getElementById('out-sub').style.color = brightness > 128 ? '#333' : '#ccc';
+            document.getElementById('out-title').style.color = brightness > 128 ? '#111' : '#fff';
+            document.getElementById('out-sub').style.color = brightness > 128 ? '#444' : '#ccc';
         };
     }
 
@@ -103,7 +100,8 @@
         btn.innerText = "正在渲染藝術感...";
         html2canvas(document.getElementById('card-container')).then(canvas => {
             const link = document.createElement('a');
-            link.download = `CourseCard_${new Date().getTime()}.png`;
+            const title = document.getElementById('in-title').value || "Card";
+            link.download = `${title}_${new Date().getTime()}.png`;
             link.href = canvas.toDataURL();
             link.click();
             btn.innerText = "一鍵匯出";

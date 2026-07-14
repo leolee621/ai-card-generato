@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Course Card Generator 5.0 - 超越 Sat.cool</title>
+    <style>
+        :root {
+            --bg-glow: radial-gradient(circle at 50% 50%, #1a1528 0%, #09070f 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-glow: 0px 8px 32px 0px rgba(0, 0, 0, 0.37);
+            --accent-orange: #ff5e00;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-glow);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* 頂級背景微光粒子 */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 10%;
+            left: 15%;
+            z-index: -1;
+            filter: blur(50px);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-glow);
+            z-index: 1;
+        }
+
+        /* 左側控制面板 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0 0 5px 0;
+            background: linear-gradient(135deg, #fff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255,255,255,0.05);
+        }
+
+        /* 風格選擇下拉選單 */
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        /* 必修開關 */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.15);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { display: none; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #3a3a3c;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-orange);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 頂級實體感按鈕 */
+        .export-btn {
+            background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 94, 0, 0.5);
+        }
+
+        /* 右側預覽區 */
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .preview-header {
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 16:9 實體預覽卡片 */
+        .card-16-9 {
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #1f1a30 0%, #0d0b14 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 圖片背景 */
+        .card-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+
+        /* 磨砂玻璃覆蓋層，提升文字易讀性 */
+        .card-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(13,11,20,0.85) 40%, rgba(13,11,20,0.1) 100%);
+            z-index: 2;
+        }
+
+        /* 內容物排版 */
+        .card-content {
+            position: relative;
+            z-index: 3;
+            max-width: 60%;
+        }
+
+        .card-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #fff;
+            line-height: 1.3;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .card-sub {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* 必修標籤 */
+        .badge-required {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: var(--accent-orange);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 94, 0, 0.5);
+            letter-spacing: 1px;
+            z-index: 3;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .active .badge-required {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 預覽背景庫（模擬AI生成的精緻圖庫） */
+        .style-luxury { background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop'); }
+        .style-watercolor { background-image: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'); }
+        .style-minimalist { background-image: url('https://images.unsplash.com/photo-1618005198143-d366803e73cc?q=80&w=1200&auto=format&fit=crop'); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <!-- 左側控制面板 -->
+        <div class="control-panel">
+            <div>
+                <h1>AI 圖卡生成器 5.0</h1>
+                <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">超越 Sat.cool 的極致視覺體驗</p>
+            </div>
+
+            <div class="input-group">
+                <label>1. 主標題 (Main Title)</label>
+                <input type="text" id="mainTitleInput" value="新人銷售基礎入門" placeholder="請輸入主標題">
+            </div>
+
+            <div class="input-group">
+                <label>2. 副標題 (Sub-Title)</label>
+                <textarea id="subTitleInput" rows="3" placeholder="請輸入副標題">金城武親自示範・從零開始・心態與技巧</textarea>
+            </div>
+
+            <div class="input-group">
+                <label>3. 智慧 AI 背景風格 (AI Background Style)</label>
+                <select id="styleSelect">
+                    <option value="style-luxury">尊爵科技奢華 (Luxury Tech)</option>
+                    <option value="style-watercolor">藝術溫暖水彩 (Warm Watercolor)</option>
+                    <option value="style-minimalist">現代極簡漸層 (Minimalist Gradient)</option>
+                </select>
+            </div>
+
+            <div class="toggle-container">
+                <span style="font-size: 14px; font-weight: 500;">是否啟用 "必修" 標籤</span>
+                <label class="switch">
+                    <input type="checkbox" id="requiredToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="export-btn" onclick="alert('🎉 AI 正在打包您的 16:9 終極高質感圖卡...\n成功匯出！')">一鍵打包匯出 (Export)</button>
+        </div>
+
+        <!-- 右側預覽區 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <span>🖥️ 16:9 智慧環境預覽 (Live Preview)</span>
+                <span style="color: var(--accent-orange)">● AI 渲染中</span>
+            </div>
+            
+            <!-- 16:9 預覽卡片 -->
+            <div class="card-16-9 active" id="cardPreview">
+                <div class="card-bg style-luxury" id="cardBg"></div>
+                <div class="card-overlay"></div>
+                
+                <div class="card-content">
+                    <div class="card-title" id="previewTitle">新人銷售基礎入門</div>
+                    <div class="card-sub" id="previewSub">金城武親自示範・從零開始・心態與技巧</div>
+                </div>
+
+                <div class="badge-required" id="badgeReq">必修</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mainInput = document.getElementById('mainTitleInput');
+        const subInput = document.getElementById('subTitleInput');
+        const styleSelect = document.getElementById('styleSelect');
+        const requiredToggle = document.getElementById('requiredToggle');
+
+        const previewTitle = document.getElementById('previewTitle');
+        const previewSub = document.getElementById('previewSub');
+        const cardBg = document.getElementById('cardBg');
+        const cardPreview = document.getElementById('cardPreview');
+
+        // 文字即時渲染
+        mainInput.addEventListener('input', (e) => {
+            previewTitle.innerText = e.target.value || "請輸入主標題";
+        });
+
+        subInput.addEventListener('input', (e) => {
+            previewSub.innerText = e.target.value || "請輸入副標題";
+        });
+
+        // 智慧背景即時切換
+        styleSelect.addEventListener('change', (e) => {
+            cardBg.className = 'card-bg ' + e.target.value;
+        });
+
+        // 必修標籤開關
+        requiredToggle.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                cardPreview.classList.add('active');
+            } else {
+                cardPreview.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

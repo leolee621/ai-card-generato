@@ -7,8 +7,10 @@
     <style>
         body { background: #0b0f19; color: #fff; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .canvas-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; transition: all 0.5s ease; }
-        .text-layer { position: absolute; padding: 40px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .canvas-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        /* 讓 canvas 填滿容器 */
+        #previewCanvas { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        .text-layer { position: absolute; padding: 40px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; z-index: 2; pointer-events: none; }
     </style>
 </head>
 <body class="p-8">
@@ -21,71 +23,66 @@
                 <button onclick="window.setPos('right')" class="p-3 bg-white/5 rounded-lg hover:bg-blue-600 transition">靠右</button>
             </div>
             <button onclick="window.generateBackground()" class="w-full p-4 bg-white text-black font-bold rounded-xl hover:scale-[1.01] transition">更換 AI 背景</button>
-            <button onclick="window.exportResult()" class="w-full p-4 bg-blue-600 font-bold rounded-xl shadow-lg shadow-blue-600/20">匯出高畫質圖卡</button>
         </section>
 
         <section class="lg:col-span-8">
             <div id="canvasBox" class="canvas-wrap shadow-2xl">
+                <!-- 補上 Canvas 標籤 -->
+                <canvas id="previewCanvas"></canvas>
                 <div id="textOverlay" class="text-layer">
                     <h1 id="titleDisplay" class="text-5xl font-black drop-shadow-lg opacity-0 transition-all duration-500"></h1>
                 </div>
-                <p id="placeholderText" class="text-gray-500">等待 AI 載入視覺...</p>
+                <p id="placeholderText" class="text-gray-500 z-0">等待 AI 載入視覺...</p>
             </div>
         </section>
     </main>
 
     <script type="module">
-    import { PEXELS_API } from './config.js';
+        import { PEXELS_API } from './config.js';
 
-    const canvas = document.getElementById('previewCanvas');
-    const ctx = canvas.getContext('2d');
-    const box = document.getElementById('canvasBox');
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
 
-    // 頂流渲染引擎：處理圖片縮放與畫布比例同步
-    window.generateBackground = async () => {
-        const placeholder = document.getElementById('placeholderText');
-        placeholder.innerText = "AI 正在注入視覺美學...";
-        
-        try {
-            const res = await fetch(`https://api.pexels.com/v1/search?query=luxury+minimalist+abstract&per_page=15`, {
-                headers: { 'Authorization': PEXELS_API }
-            });
-            const data = await res.json();
-            const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
+        window.generateBackground = async () => {
+            const placeholder = document.getElementById('placeholderText');
+            placeholder.innerText = "AI 正在注入視覺美學...";
             
-            if(photo) {
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = photo.src.large2x;
+            try {
+                const res = await fetch(`https://api.pexels.com/v1/search?query=luxury+minimalist+abstract&per_page=15`, {
+                    headers: { 'Authorization': PEXELS_API }
+                });
+                const data = await res.json();
+                const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
                 
-                img.onload = () => {
-                    // 同步畫布尺寸
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    placeholder.style.display = 'none';
-                    console.log("渲染引擎：背景已載入");
-                };
+                if(photo) {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.src = photo.src.large2x;
+                    
+                    img.onload = () => {
+                        canvas.width = canvas.offsetWidth;
+                        canvas.height = canvas.offsetHeight;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        placeholder.style.display = 'none';
+                    };
+                }
+            } catch (e) {
+                placeholder.innerText = "載入失敗，請確認 API 設定。";
             }
-        } catch (e) {
-            placeholder.innerText = "載入失敗，請檢查網路連線。";
-        }
-    };
+        };
 
-    // 對齊控制：利用 Flexbox 視覺錨點
-    window.setPos = (pos) => {
-        const textOverlay = document.getElementById('textOverlay');
-        textOverlay.style.alignItems = pos === 'left' ? 'flex-start' : 'flex-end';
-        textOverlay.style.textAlign = pos === 'left' ? 'left' : 'right';
-    };
+        window.setPos = (pos) => {
+            const overlay = document.getElementById('textOverlay');
+            overlay.style.alignItems = pos === 'left' ? 'flex-start' : 'flex-end';
+            overlay.style.textAlign = pos === 'left' ? 'left' : 'right';
+        };
 
-    // 即時文字渲染動畫
-    document.getElementById('mainTxt').addEventListener('input', (e) => {
-        const title = document.getElementById('titleDisplay');
-        title.innerText = e.target.value;
-        title.classList.remove('opacity-0', 'translate-y-4');
-        title.classList.add('opacity-100', 'translate-y-0');
-    });
-</script>
+        document.getElementById('mainTxt').addEventListener('input', (e) => {
+            const title = document.getElementById('titleDisplay');
+            title.innerText = e.target.value;
+            title.classList.remove('opacity-0', 'translate-y-4');
+            title.classList.add('opacity-100', 'translate-y-0');
+        });
+    </script>
 </body>
 </html>

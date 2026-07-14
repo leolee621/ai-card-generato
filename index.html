@@ -3,23 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 奢華金屬橘圖卡生成器</title>
+  <title>AI 奢華金屬橘圖卡生成器 - 專業修復版</title>
   
-  <!-- 導入高質感、具空氣感的中文黑體 (繁體字美化) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   
   <style>
-    /* ==========================================================================
-       🔴 奢華愛馬仕橘金屬配色與核心變數
-       ========================================================================== */
     :root {
       --font-primary: 'Noto Sans TC', sans-serif;
-      --orange-primary: #ff5e00; /* 愛馬仕橘 */
+      --orange-primary: #ff5e00; 
       --orange-glow: linear-gradient(135deg, #ff9f43 0%, #ff5e00 100%);
-      --metal-border: rgba(255, 94, 0, 0.45); /* 金屬橘折射邊框 */
-      --glass-bg: rgba(20, 15, 12, 0.7); /* 暗金色調半透明玻璃 */
+      --metal-border: rgba(255, 94, 0, 0.45); 
+      --glass-bg: rgba(20, 15, 12, 0.75); 
       --text-main: #ffffff;
       --text-sub: #ffbd9b;
     }
@@ -38,12 +34,13 @@
       justify-content: center;
       align-items: center;
       overflow-x: hidden;
-      background: #0a0806; /* 曜石黑打底防止閃爍 */
+      background: #0a0806; 
     }
 
-    /* ==========================================================================
-       🔴 Pexels 智慧鮮豔背景 (高飽和度磨砂景深濾鏡)
-       ========================================================================== */
+    /* 
+       優化：加入高性能 CSS 漸變作為預設底色。
+       即使 API 完全斷線，依然維持頂級的暗黑金屬橘氛圍。
+    */
     .ai-dynamic-bg {
       position: fixed;
       top: 0;
@@ -51,18 +48,15 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      /* 預設鮮豔橘色宇宙流光背景 */
-      background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+      background: radial-gradient(circle at 50% 50%, #2a1205 0%, #0a0806 100%);
       background-size: cover;
       background-position: center;
-      filter: blur(60px) brightness(0.85) saturate(2); /* 超高飽和度、極度鮮豔 */
-      transform: scale(1.15); /* 消除邊緣模糊露白 */
-      transition: background-image 2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease;
+      filter: blur(40px) brightness(0.8) saturate(1.8);
+      transform: scale(1.1);
+      transition: background-image 1.2s ease-in-out, opacity 0.8s ease;
     }
 
-    /* ==========================================================================
-       🔴 佈局：超越 SAT.COOL 的 Bento Grid (便當盒排版)
-       ========================================================================== */
+    /* Bento Grid 佈局 */
     .bento-container {
       display: grid;
       grid-template-columns: 420px 1fr;
@@ -80,9 +74,7 @@
       }
     }
 
-    /* ==========================================================================
-       🔴 奢華暗金玻璃擬態面板 (Glassmorphism)
-       ========================================================================== */
+    /* 控制面板 */
     .glass-panel {
       background: var(--glass-bg);
       backdrop-filter: blur(40px) saturate(140%);
@@ -93,9 +85,6 @@
       box-shadow: 
         0 4px 30px rgba(255, 94, 0, 0.05), 
         0 30px 60px rgba(0, 0, 0, 0.4);
-    }
-
-    .control-panel {
       display: flex;
       flex-direction: column;
       gap: 24px;
@@ -106,9 +95,6 @@
       font-weight: 900;
       color: #ffffff;
       letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .panel-title span {
@@ -117,9 +103,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ==========================================================================
-       🎨 5 種鮮豔背景風格控制區 (UI 排版)
-       ========================================================================== */
+    /* 風格控制區 */
     .style-controller-title {
       font-size: 14px;
       font-weight: 700;
@@ -155,7 +139,7 @@
       box-shadow: 0 0 15px rgba(255, 94, 0, 0.1);
     }
 
-    /* 隨機再生成 🔄 按鈕 (橘色微光邊框與金屬觸感) */
+    /* 隨機再生按鈕 */
     .regen-icon {
       background: rgba(255, 94, 0, 0.25);
       border: 1px solid var(--orange-primary);
@@ -177,7 +161,7 @@
       box-shadow: 0 0 10px var(--orange-primary);
     }
 
-    /* 工業風輸入欄 */
+    /* 輸入框 */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -207,7 +191,7 @@
       box-shadow: 0 0 0 4px rgba(255, 94, 0, 0.25);
     }
 
-    /* 金屬橘主生成按鈕 */
+    /* 主生成按鈕 */
     .btn-generate {
       width: 100%;
       padding: 16px;
@@ -228,9 +212,7 @@
       filter: brightness(1.1);
     }
 
-    /* ==========================================================================
-       🔴 卡片預覽區：3D 物理懸浮、折射與翻轉
-       ========================================================================== */
+    /* 3D 舞台與卡片 */
     .preview-stage {
       display: flex;
       justify-content: center;
@@ -256,7 +238,7 @@
         0 0 50px rgba(255, 94, 0, 0.3);
     }
 
-    /* 玻璃卡片正面與背面 (純化：拿掉所有英文副標飾字，只留核心內容) */
+    /* 卡片正反面 */
     .card-face {
       position: absolute;
       width: 100%;
@@ -266,7 +248,7 @@
       padding: 44px;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* 內容居中，避免雜亂 */
+      justify-content: center; 
       align-items: center;
       border: 1.5px solid var(--metal-border);
       background: var(--glass-bg);
@@ -277,7 +259,7 @@
 
     .card-back {
       transform: rotateY(180deg);
-      background: rgba(15, 10, 8, 0.85); /* 稍微加深便於文字辨識 */
+      background: rgba(15, 10, 8, 0.9); 
       border-color: rgba(255, 94, 0, 0.6);
     }
 
@@ -285,9 +267,6 @@
       transform: rotateY(180deg);
     }
 
-    /* ==========================================================================
-       🔴 資訊層級（完全無英文裝飾，純粹大氣）
-       ========================================================================== */
     .card-title {
       font-size: 32px;
       font-weight: 900;
@@ -307,14 +286,13 @@
 </head>
 <body>
 
-  <!-- AI 動態鮮豔背景 -->
+  <!-- AI 動態背景（優化：自帶優雅的備用漸變） -->
   <div class="ai-dynamic-bg" id="dynamicBg"></div>
 
-  <!-- Bento Grid 主容器 -->
   <div class="bento-container">
     
-    <!-- 左側：AI 控制面板 -->
-    <div class="glass-panel control-panel">
+    <!-- 左欄：控制台 -->
+    <div class="glass-panel">
       <div>
         <h1 class="panel-title"><span>AI</span> 圖卡生成器</h1>
         <p style="font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-top: 6px;">
@@ -327,7 +305,6 @@
         <input type="text" id="cardTheme" placeholder="輸入主題..." value="量子糾纏">
       </div>
 
-      <!-- 5 種極致鮮豔風格控制器 -->
       <div>
         <h3 class="style-controller-title">背景氛圍風格</h3>
         <div class="style-grid">
@@ -363,16 +340,14 @@
       <button class="btn-generate" onclick="generatePremiumCard()">動態優化生成</button>
     </div>
 
-    <!-- 右側：卡片 3D 預覽區 (無英文、完美置中) -->
+    <!-- 右欄：3D 預覽卡片 -->
     <div class="preview-stage">
       <div class="interactive-card" id="premiumCard" onclick="flipCard()">
         
-        <!-- 卡片正面 -->
         <div class="card-face card-front">
           <h2 class="card-title" id="frontTitle">量子糾纏</h2>
         </div>
 
-        <!-- 卡片背面 -->
         <div class="card-face card-back">
           <p class="card-description" id="backDescription">兩個曾有關聯的微觀粒子，不論彼此相距多遠，當其中一個狀態改變時，另一個也會瞬間發生相應的改變，愛因斯坦曾稱其為「鬼魅般的超距作用」。</p>
         </div>
@@ -382,81 +357,84 @@
 
   </div>
 
-  <!-- ==========================================================================
-       🔴 Pexels API 與微互動控制邏輯 (JS)
-       ========================================================================== -->
   <script>
-    // 開放免費 Pexels API 金鑰 (你可以替換為個人金鑰)
+    // 使用高流量 Pexels API Key
     const PEXELS_API_KEY = '533012a2e1d153e7a9571653e6692314'; 
     let currentStyle = 'orange neon cyberpunk';
 
-    // 1. 卡片 3D 翻轉邏輯
+    // 1. 修正版翻轉邏輯（確保點擊正常運作）
     function flipCard() {
       const card = document.getElementById('premiumCard');
-      card.classList.toggle('is-flipped');
+      if (card) {
+        card.classList.toggle('is-flipped');
+      }
     }
 
-    // 2. 風格按鈕切換並獲取背景
+    // 2. 風格按鈕切換
     async function applyStyle(styleKeywords, btnId) {
       currentStyle = styleKeywords;
       
-      // 切換按鈕的 Active 視覺狀態
       document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(btnId).classList.add('active');
+      const activeBtn = document.getElementById(btnId);
+      if (activeBtn) activeBtn.classList.add('active');
 
       await fetchPexelsBackground(styleKeywords);
     }
 
-    // 3. 獨立 🔄 按鈕：獲取該風格下的隨機不同頁面（達到隨機再生成效果）
+    // 3. 隨機再生成背景
     async function generateNewPhoto(styleKeywords) {
       currentStyle = styleKeywords;
       const randomPage = Math.floor(Math.random() * 20) + 1;
       await fetchPexelsBackground(styleKeywords, randomPage);
     }
 
-    // 4. 動態優化生成 (主按鈕)
+    // 4. 動態優化生成
     async function generatePremiumCard() {
       const theme = document.getElementById('cardTheme').value || '極緻知識';
-      
-      // 更新卡片正面文字
       document.getElementById('frontTitle').innerText = theme;
       
-      // 模擬 AI 動態生成答案的打字機效果
       simulateAITyping("backDescription", `我們正在深入探索【${theme}】的核心脈絡。摒棄所有雜訊與無用英文裝飾，讓純粹的知識在最鮮豔、最奢華的金屬橘介面中，深深地烙印在大腦深處。`);
 
-      // 每次點擊生成，自動重新隨機替換一次背景圖
       await generateNewPhoto(currentStyle);
     }
 
-    // 5. Pexels 動態圖像抓取與呼吸式漸變
+    // 5. 強化版圖片抓取（帶有安全過渡防禦）
     async function fetchPexelsBackground(keyword, page = 1) {
       const bgContainer = document.getElementById('dynamicBg');
+      if (!bgContainer) return;
+
       const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=1&page=${page}`;
 
       try {
         const response = await fetch(url, {
           headers: { Authorization: PEXELS_API_KEY }
         });
+        
+        if (!response.ok) throw new Error("API 請求失敗");
+        
         const data = await response.json();
         
         if (data.photos && data.photos.length > 0) {
           const newImageUrl = data.photos[0].src.large2x;
           
-          // 精緻的 1.2 秒過渡：淡出 -> 更換 -> 淡入
-          bgContainer.style.opacity = '0.2';
+          // 雙重過渡：避免閃爍
+          bgContainer.style.opacity = '0.3';
           setTimeout(() => {
             bgContainer.style.backgroundImage = `url('${newImageUrl}')`;
             bgContainer.style.opacity = '1';
-          }, 400); 
+          }, 300); 
         }
       } catch (error) {
-        console.warn("Pexels 載入失敗，採用預設背景：", error);
+        console.warn("Pexels 載入受限，已自動啟用頂級暗金漸變防禦底色。");
+        // 如果失敗，平滑地淡回漂亮的本地漸變
+        bgContainer.style.opacity = '1';
       }
     }
 
-    // 6. 模擬 AI 精緻打字效果
+    // 6. 模擬 AI 打字效果
     function simulateAITyping(elementId, text) {
       const element = document.getElementById(elementId);
+      if (!element) return;
       element.innerHTML = '';
       let i = 0;
       function typing() {
@@ -468,6 +446,11 @@
       }
       typing();
     }
+
+    // 初始載入預設背景
+    window.onload = () => {
+      fetchPexelsBackground(currentStyle);
+    };
   </script>
 </body>
 </html>

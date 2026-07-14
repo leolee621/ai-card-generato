@@ -2,44 +2,45 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>AI Course Card Studio | Pro Edition</title>
+    <title>AI Studio - 高質感圖卡產生器</title>
+    <!-- 使用 Tailwind 加速設計，讓介面達到頂流質感 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0b0f19; color: #fff; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .canvas-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #previewCanvas { position: absolute; width: 100%; height: 100%; object-fit: cover; }
-        .text-layer { position: absolute; padding: 40px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; pointer-events: none; z-index: 10; }
+        body { background: #050505; color: #fff; font-family: sans-serif; }
+        .canvas-box { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid #333; }
+        #outputCanvas { width: 100%; height: 100%; object-fit: cover; }
+        .controls { background: #111; padding: 20px; border-radius: 16px; border: 1px solid #333; }
     </style>
 </head>
-<body class="p-8">
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <section class="lg:col-span-4 glass p-8 rounded-3xl space-y-6">
-            <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Studio Controls</h2>
-            <input id="mainTxt" type="text" placeholder="輸入主標題..." class="w-full bg-black/20 p-4 rounded-xl border border-white/10 outline-none focus:border-blue-500">
-            <button id="btnBg" class="w-full p-4 bg-white text-black font-bold rounded-xl hover:scale-[1.01] transition">更換 AI 背景</button>
-        </section>
+<body class="p-10">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- 左側面板 -->
+        <div class="controls space-y-4">
+            <h1 class="text-xl font-bold">Studio Controls</h1>
+            <input id="titleInput" type="text" placeholder="輸入標題..." class="w-full bg-black p-3 rounded border border-gray-700 text-white">
+            <button onclick="changeBackground()" class="w-full bg-white text-black py-3 rounded font-bold hover:bg-gray-200">更換 AI 背景</button>
+        </div>
 
-        <section class="lg:col-span-8">
-            <div id="canvasBox" class="canvas-wrap shadow-2xl">
-                <canvas id="previewCanvas"></canvas>
-                <div class="text-layer">
-                    <h1 id="titleDisplay" class="text-5xl font-black drop-shadow-lg opacity-0 transition-all duration-500"></h1>
-                </div>
+        <!-- 右側畫布 -->
+        <div class="md:col-span-2">
+            <div id="canvasBox" class="canvas-box">
+                <canvas id="outputCanvas"></canvas>
+                <h1 id="titleDisplay" class="absolute text-4xl font-black drop-shadow-2xl"></h1>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <script>
-        // 核心設定：直接將 API Key 內嵌以避開模組路徑問題
         const API_KEY = 'RKN05GazMkLLJiykYmmsZTWELjtDPmMexoOahZz8LwoveEHwug6JhErh';
-        const canvas = document.getElementById('previewCanvas');
+        const canvas = document.getElementById('outputCanvas');
         const ctx = canvas.getContext('2d');
 
-        // 渲染邏輯
-        document.getElementById('btnBg').addEventListener('click', async () => {
+        // 簡單直覺的背景更換
+        async function changeBackground() {
+            const btn = event.target;
+            btn.innerText = "載入中...";
             try {
-                const res = await fetch(`https://api.pexels.com/v1/search?query=luxury+minimalist&per_page=15`, {
+                const res = await fetch('https://api.pexels.com/v1/search?query=luxury+minimalist&per_page=20', {
                     headers: { 'Authorization': API_KEY }
                 });
                 const data = await res.json();
@@ -52,16 +53,17 @@
                     canvas.width = canvas.offsetWidth;
                     canvas.height = canvas.offsetHeight;
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    btn.innerText = "更換 AI 背景";
                 };
-            } catch (e) { alert("API 連線錯誤，請檢查狀態"); }
-        });
+            } catch (e) {
+                alert("連接失敗，請確認網路");
+                btn.innerText = "更換 AI 背景";
+            }
+        }
 
-        // 動畫互動
-        document.getElementById('mainTxt').addEventListener('input', (e) => {
-            const title = document.getElementById('titleDisplay');
-            title.innerText = e.target.value;
-            title.classList.remove('opacity-0', 'translate-y-4');
-            title.classList.add('opacity-100', 'translate-y-0');
+        // 文字即時同步
+        document.getElementById('titleInput').addEventListener('input', (e) => {
+            document.getElementById('titleDisplay').innerText = e.target.value;
         });
     </script>
 </body>
